@@ -9,4 +9,16 @@ CREATE TEXT SEARCH CONFIGURATION french_unaccent (COPY = french);
 ALTER TEXT SEARCH CONFIGURATION french_unaccent
   ALTER MAPPING FOR hword,hword_part,word
   WITH unaccent, french_stem;
- 
+
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    titre TEXT NOT NULL,
+    auteur TEXT,
+    date_upload TIMESTAMPTZ DEFAULT NOW(),
+    type_fichier TEXT NOT NULL,
+    tags TEXT[],
+    contenu TEXT NOT NULL,
+    search_vector TSVECTOR   );
+
+CREATE INDEX idx_documents_search_vector
+    ON documents USING GIN(search_vector) ;
