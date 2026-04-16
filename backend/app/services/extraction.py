@@ -14,7 +14,7 @@ def extract_pdf(file_bytes: bytes) -> str:
 def extract_docx(file_bytes: bytes) -> str:
     doc = DocxDocument(BytesIO(file_bytes))
     text = ""
-    for paragraph in doc.paragraph:
+    for paragraph in doc.paragraphs:
         text += paragraph +"\n"
     return text 
 
@@ -24,7 +24,7 @@ def extract_text(filename: str,file_bytes: bytes) -> str:
     if filename.lower().endswith("pdf"):
         return extract_pdf(file_bytes)
     elif filename.lower().endswith("docx"):
-        return extact_docx(file_bytes)
+        return extract_docx(file_bytes)
     else:
         raise ValueError(f"Fromat du fichier {filename} n'est pas supporte")
 

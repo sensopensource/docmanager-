@@ -17,3 +17,6 @@ class DocumentRead(BaseModel):
     date_upload: datetime
     type_fichier: str
     tags: list[str] | None = None
+
+class DocumentReadDetail(DocumentRead):
+    appercu_contenu: str | None = None
