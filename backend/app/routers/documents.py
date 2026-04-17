@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Form, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail
+from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail,DocumentPatch
 from app.services import document_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 TEMP_USER_ID = 1
 TEMP_CATEGORIE_ID = 1
 
-
+# lutilisaateur envoie une requette HTTP avec ContentType multipart pr le pdf,cest pour ca qu'on passe par File() et Form()
 @router.post("/", response_model=DocumentRead)
 async def upload_document(
     file: UploadFile = File(...),
@@ -56,3 +56,13 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document non trouve")
     return document_detail
     
+@router.patch("/{document_id}",response_model=DocumentRead) 
+def patch_document(document_id: int,document: DocumentPatch,db: Session= Depends(get_db)):
+    
+    nouveau_document = document_service.patch_document(db=db,
+                                                       document_id=document_id,
+                                                       titre=document.titre,
+                                                       auteur=document.auteur)
+    if not nouveau_document:
+        raise HTTPException(status_code=404,detail="Modification impossible")
+    return nouveau_document

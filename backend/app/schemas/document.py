@@ -3,6 +3,8 @@ from pydantic import BaseModel, ConfigDict
 
 
 class DocumentCreate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     titre: str | None = None
     auteur: str | None = None
 
@@ -15,6 +17,10 @@ class DocumentRead(BaseModel):
     auteur: str | None = None
     date_creation: datetime
 
+class DocumentPatch(BaseModel):
+   
+    titre: str | None = None
+    auteur: str | None = None
 
 class DocumentReadDetail(DocumentRead):
     model_config = ConfigDict(from_attributes=True)

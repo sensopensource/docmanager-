@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.documents import Document
 from app.models.versions import Version
-from app.schemas.document import DocumentCreate,DocumentReadDetail
+from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead
 from app.services.extraction import extract_text
 
 STORAGE_DIR = Path(os.getenv("STORAGE_DIR", "/app/storage/documents"))
@@ -101,3 +101,15 @@ def get_document_detail(db: Session, document_id: int) -> DocumentReadDetail | N
        numero_version=version.numero    )
     
     return document_detail
+
+def patch_document(db: Session,document_id: int,auteur: str | None = None,titre: str | None = None) -> DocumentRead | None:
+    document = get_document(db,document_id)
+    if not document:
+        return None
+    if auteur :
+        document.auteur=auteur
+    if titre:
+        document.titre=titre
+    db.commit()
+    db.refresh(document)
+    return document
