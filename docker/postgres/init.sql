@@ -94,11 +94,48 @@ CREATE TABLE historiques_recherches(
     nb_resultats int NOT NULL
 );
 
-INSERT INTO utilisateurs (role, email, mot_de_passe_hash, nom)
-VALUES ('admin', 'admin@test.com', 'temp_hash', 'Admin Test');
+
 
 INSERT INTO categories (nom)
 VALUES ('Non categorise');
 
+
+
+
 CREATE INDEX idx_documents_search_vector
     ON versions USING GIN(search_vector) ;
+
+
+CREATE OR REPLACE FUNCTION versions_search_vector_update() RETURNS trigger AS $$
+DECLARE
+    doc_titre TEXT;
+    doc_auteur TEXT;
+    doc_id_categorie int;
+    cat_nom TEXT;
+BEGIN
+    SELECT d.titre, d.auteur,d.id_categorie INTO doc_titre, doc_auteur,doc_id_categorie
+    FROM documents d WHERE d.id = NEW.id_document;
+
+    SELECT c.nom INTO cat_nom
+    FROM categories c WHERE c.id = doc_id_categorie;
+
+    NEW.search_vector :=
+        setweight(to_tsvector('french_unaccent', COALESCE(doc_titre, '')), 'A') ||
+        setweight(to_tsvector('french_unaccent', COALESCE(doc_auteur, '')), 'B') ||
+        setweight(to_tsvector('french_unaccent', COALESCE(NEW.contenu, '')), 'C') || 
+        setweight(to_tsvector('french_unaccent', COALESCE(cat_nom,'')),'D');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER versions_search_vector_trigger
+BEFORE INSERT OR UPDATE ON versions
+FOR EACH ROW EXECUTE FUNCTION versions_search_vector_update();
+
+
+
+
+
+INSERT INTO utilisateurs (role, email, mot_de_passe_hash, nom)
+VALUES ('admin', 'admin@test.com', 'temp_hash', 'Admin Test');

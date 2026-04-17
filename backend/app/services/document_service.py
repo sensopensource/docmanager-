@@ -121,7 +121,7 @@ def patch_document(db: Session,document_id: int,auteur: str | None = None,titre:
     return document
 
 
-def delete_document(db: Session,document_id: int) -> str | bool:
+def delete_document(db: Session,document_id: int) -> bool:
 
     document = get_document(db=db,document_id=document_id)
     if not document:
@@ -135,7 +135,7 @@ def download_document_latest_version(db: Session,document_id:int) -> DocumentDow
     if not document:
         return None
     version = get_latest_version(db=db,document_id=document_id)
-    filaname_= f"{document.titre}.v{version.numero}.{version.type_fichier}"
-    fichier = DocumentDownload(path=STORAGE_DIR / version.storage_fichier,filename=filaname_,media_type=MIME_TYPES[version.type_fichier])
+    filaname= f"{document.titre}.v{version.numero}.{version.type_fichier}"
+    fichier = DocumentDownload(path=STORAGE_DIR / version.storage_fichier,filename=filaname,media_type=MIME_TYPES[version.type_fichier])
 
     return fichier

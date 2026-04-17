@@ -72,10 +72,12 @@ def patch_document(document_id: int,document: DocumentPatch,db: Session= Depends
 def delete_document(document_id:int,
                     db: Session= Depends(get_db)):
     
-    if document_service.delete_document(db=db,document_id=document_id):
-        return {"message": "document supprime avec succes"}
-    else:
+    if not document_service.delete_document(db=db,document_id=document_id):
         raise HTTPException(status_code=404,detail="Document non trouve")
+    else:
+        return {"message": "document supprime avec succes"}
+    
+        
     
 @router.get("/{document_id}/download")
 def download_document(document_id: int,
