@@ -21,7 +21,10 @@ services:
     volumes:
       - ./backend/app:/app/app
       - documents_data:/app/storage/documents
-
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
 
 
 volumes:

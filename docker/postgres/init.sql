@@ -129,13 +129,32 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+CREATE OR REPLACE FUNCTION documents_touch_versions() RETURNS trigger AS $$
+BEGIN
+    IF NEW.titre IS DISTINCT FROM OLD.titre
+       OR NEW.auteur IS DISTINCT FROM OLD.auteur
+       OR NEW.id_categorie IS DISTINCT FROM OLD.id_categorie THEN
+        UPDATE versions SET id_document = id_document WHERE id_document = NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
 CREATE TRIGGER versions_search_vector_trigger
 BEFORE INSERT OR UPDATE ON versions
 FOR EACH ROW EXECUTE FUNCTION versions_search_vector_update();
 
 
+CREATE TRIGGER documents_touch_versions_trigger
+AFTER UPDATE ON documents
+FOR EACH ROW EXECUTE FUNCTION documents_touch_versions();
 
 
 
 INSERT INTO utilisateurs (role, email, mot_de_passe_hash, nom)
 VALUES ('admin', 'admin@test.com', 'temp_hash', 'Admin Test');
+
