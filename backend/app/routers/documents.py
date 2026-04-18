@@ -59,7 +59,6 @@ def search_document(query: str = Query(...,min_length=1),
                                                  size=size)
     return resulats
     
-    
 
 @router.get("/{document_id}", response_model=DocumentReadDetail)
 def get_document(document_id: int, db: Session = Depends(get_db)):

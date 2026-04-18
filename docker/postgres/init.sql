@@ -105,6 +105,12 @@ VALUES ('Non categorise');
 CREATE INDEX idx_documents_search_vector
     ON versions USING GIN(search_vector) ;
 
+CREATE INDEX idx_documents_titre_trgm
+    ON documents USING GIN(titre gin_trgm_ops);
+
+CREATE INDEX idx_documents_auteur_trgm
+    ON documents USING GIN(auteur gin_trgm_ops);
+
 
 CREATE OR REPLACE FUNCTION versions_search_vector_update() RETURNS trigger AS $$
 DECLARE

@@ -3,7 +3,7 @@ import uuid
 from pathlib import Path
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func,or_
 
 from app.models.documents import Document
 from app.models.versions import Version
@@ -178,4 +178,50 @@ def search_documents(
         )
         resultats.append(resultat)
 
+    if not resultats:
+        resultats = search_document_fallback(db=db,
+                                            query=query,
+                                            page=page,
+                                            id_utilisateur=id_utilisateur,
+                                            size=size)
     return resultats
+    
+
+def search_document_fallback(db: Session,
+                               query: str,
+                               id_utilisateur: int,
+                               size: int,
+                               page: int) -> list[DocumentSearchResult]:
+    
+    offset=(page-1)*size
+
+    score1 = func.similarity(func.coalesce(Document.auteur,''),query).label('score1')
+    score2 = func.similarity(func.coalesce(Document.titre,''),query).label('score2')
+    
+    resultats = []
+    rows = ( 
+            db.query(Document,score1,score2)
+            .filter(
+                or_(
+                    func.coalesce(Document.titre,'').op('%')(query),
+                    func.coalesce(Document.auteur,'').op('%')(query)
+                )
+            )
+            .filter(Document.id_utilisateur==id_utilisateur)
+            .order_by((score1+score2).desc())
+            .offset(offset)
+            .limit(size)
+            .all() 
+    )
+
+    for document,scoreA,scoreT in rows:
+        resultat = DocumentSearchResult(
+            id=document.id,
+            titre=document.titre,
+            auteur=document.auteur,
+            date_creation=document.date_creation,
+            extrait=None
+        )
+        resultats.append(resultat)
+    return resultats
+
