@@ -7,7 +7,7 @@ from sqlalchemy import func
 
 from app.models.documents import Document
 from app.models.versions import Version
-from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload
+from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload,DocumentSearchResult
 from app.services.extraction import extract_text
 
 STORAGE_DIR = Path(os.getenv("STORAGE_DIR", "/app/storage/documents"))
@@ -141,13 +141,23 @@ def download_document_latest_version(db: Session,document_id:int) -> DocumentDow
 
     return fichier
 
-def search_documents(db: Session,query: str,id_utilisateur: int,page: int = 1,size: int = 20,) -> list[Document]:
+def search_documents(
+    db: Session,
+    query: str,
+    id_utilisateur: int,
+    page: int = 1,
+    size: int = 20,
+) -> list[DocumentSearchResult]:
     tsquery = func.websearch_to_tsquery('french_unaccent', query)
     rank = func.ts_rank_cd(Version.search_vector, tsquery)
+
+    options_headline = 'MaxWords=25, MinWords=10, StartSel=<b>, StopSel=</b>'
+    func_extrait = func.ts_headline('french_unaccent', Version.contenu, tsquery, options_headline).label('extrait')
+
     offset = (page - 1) * size
 
-    return (
-        db.query(Document)
+    rows = (
+        db.query(Document, func_extrait)
         .join(Version, Version.id_document == Document.id)
         .filter(Document.id_utilisateur == id_utilisateur)
         .filter(Version.search_vector.op('@@')(tsquery))
@@ -156,3 +166,16 @@ def search_documents(db: Session,query: str,id_utilisateur: int,page: int = 1,si
         .limit(size)
         .all()
     )
+
+    resultats = []
+    for document, extrait_value in rows:
+        resultat = DocumentSearchResult(
+            id=document.id,
+            titre=document.titre,
+            auteur=document.auteur,
+            date_creation=document.date_creation,
+            extrait=extrait_value,
+        )
+        resultats.append(resultat)
+
+    return resultats

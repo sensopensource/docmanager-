@@ -33,6 +33,9 @@ class DocumentReadDetail(DocumentRead):
     numero_version: int | None = None
 
 class DocumentDownload(BaseModel):
-    path: Path 
+    path: Path
     filename : str
     media_type: str
+
+class DocumentSearchResult(DocumentRead):
+    extrait: str | None = None

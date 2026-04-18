@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Form, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail,DocumentPatch
+from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail,DocumentPatch,DocumentSearchResult
 from app.services import document_service
 from fastapi.responses import FileResponse
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -46,10 +46,10 @@ def list_documents(
     )
     return documents
 
-@router.get("/search",response_model=list[DocumentRead])
+@router.get("/search",response_model=list[DocumentSearchResult])
 def search_document(query: str = Query(...,min_length=1),
                     page: int = Query(1,ge=1),
-                    size: int = Query(20,ge=20,le=100),
+                    size: int = Query(20,ge=1,le=100),
                     db: Session = Depends(get_db)):
     id_utilisateur=TEMP_USER_ID
     resulats = document_service.search_documents(db=db,
@@ -60,9 +60,6 @@ def search_document(query: str = Query(...,min_length=1),
     return resulats
     
     
-
-
-
 
 @router.get("/{document_id}", response_model=DocumentReadDetail)
 def get_document(document_id: int, db: Session = Depends(get_db)):
