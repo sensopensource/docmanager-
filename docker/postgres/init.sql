@@ -17,7 +17,8 @@ CREATE TABLE utilisateurs (
     email TEXT NOT NULL UNIQUE ,
     mot_de_passe_hash TEXT NOT NULL,
     date_inscription TIMESTAMPTZ DEFAULT NOW(),
-    nom TEXT NOT NULL
+    nom TEXT NOT NULL,
+
 
 );
 
