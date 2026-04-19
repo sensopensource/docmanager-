@@ -3,9 +3,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas.utilisateur import Token,UtilisateurRegister
+from app.schemas.utilisateur import Token,UtilisateurRegister,UtilisateurRead
 from app.services import auth_service
 from app.core.security import create_access_token
+from app.core.dependencies import get_current_user
+from app.models.utilisateurs import Utilisateur
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -40,3 +42,9 @@ def login(
         raise HTTPException(status_code=401, detail="Informations invalides")
     token = create_access_token(user_id=user.id)
     return Token(access_token=token, token_type="bearer")
+
+
+@router.get("/me",response_model=UtilisateurRead)
+def me(current_user: Utilisateur = Depends(get_current_user)):
+    return current_user
+    

@@ -9,6 +9,7 @@ from app.models.documents import Document
 from app.models.versions import Version
 from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload,DocumentSearchResult
 from app.services.extraction import extract_text
+from app.models.utilisateurs import Utilisateur
 
 STORAGE_DIR = Path(os.getenv("STORAGE_DIR", "/app/storage/documents"))
 
@@ -86,11 +87,16 @@ def list_documents(db: Session, id_utilisateur: int, page: int = 1, size: int = 
     )
 
 
-def get_document(db: Session, document_id: int) -> Document | None:
-    return db.query(Document).filter(Document.id == document_id).first()
+def get_document(db: Session,
+                 document_id: int,
+                 id_utilisateur: int) -> Document | None:
+    return db.query(Document).filter(Document.id == document_id).filter(Document.id_utilisateur==id_utilisateur).first()
 
-def get_document_detail(db: Session, document_id: int) -> DocumentReadDetail | None:
-    document= get_document(db,document_id)
+def get_document_detail(db: Session,
+                        document_id: int,
+                        id_utilisateur: int) -> DocumentReadDetail | None:
+    
+    document= get_document(db,document_id,id_utilisateur=id_utilisateur)
     if not document:
         return None
     version = get_latest_version(db,document_id)
@@ -109,8 +115,14 @@ def get_document_detail(db: Session, document_id: int) -> DocumentReadDetail | N
     
     return document_detail
 
-def patch_document(db: Session,document_id: int,auteur: str | None = None,titre: str | None = None) -> DocumentRead | None:
-    document = get_document(db,document_id)
+def patch_document(db: Session,
+                   document_id: int,
+                   id_utilisateur: int,
+                   auteur: str | None = None,
+                   titre: str | None = None,) -> DocumentRead | None:
+    document = get_document(db,
+                            document_id,
+                            id_utilisateur=id_utilisateur)
     if not document:
         return None
     if auteur :
@@ -122,17 +134,25 @@ def patch_document(db: Session,document_id: int,auteur: str | None = None,titre:
     return document
 
 
-def delete_document(db: Session,document_id: int) -> bool:
+def delete_document(db: Session,
+                    document_id: int,
+                    id_utilisateur: int) -> bool:
 
-    document = get_document(db=db,document_id=document_id)
+    document = get_document(db=db,
+                            document_id=document_id,
+                            id_utilisateur=id_utilisateur)
     if not document:
         return False
     db.delete(document)
     db.commit()
     return True
     
-def download_document_latest_version(db: Session,document_id:int) -> DocumentDownload | None:
-    document= get_document(db=db,document_id=document_id)
+def download_document_latest_version(db: Session,
+                                     document_id:int,
+                                     id_utilisateur: int) -> DocumentDownload | None:
+    document= get_document(db=db,
+                           document_id=document_id,
+                           id_utilisateur=id_utilisateur)
     if not document:
         return None
     version = get_latest_version(db=db,document_id=document_id)
