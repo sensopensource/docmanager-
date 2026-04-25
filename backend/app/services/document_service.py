@@ -103,7 +103,7 @@ def get_document_detail(db: Session,
     
      
     document_detail = DocumentReadDetail(
-       id = document.id,
+       id = document.id, 
        titre = document.titre,
        auteur = document.auteur,
        date_creation=document.date_creation,
@@ -208,10 +208,10 @@ def search_documents(
     
 
 def search_document_fallback(db: Session,
-                               query: str,
-                               id_utilisateur: int,
-                               size: int,
-                               page: int) -> list[DocumentSearchResult]:
+                             query: str,
+                             id_utilisateur: int,
+                             size: int,
+                             page: int) -> list[DocumentSearchResult]:
     
     offset=(page-1)*size
 

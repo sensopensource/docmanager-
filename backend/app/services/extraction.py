@@ -1,7 +1,7 @@
 from pypdf import PdfReader
 from docx import Document as DocxDocument 
 from io import BytesIO 
-
+from fastapi import HTTPException
 #fonction qui extrait le text dun pdf
 def extract_pdf(file_bytes: bytes) -> str:
     reader = PdfReader(BytesIO(file_bytes))
@@ -26,5 +26,5 @@ def extract_text(filename: str,file_bytes: bytes) -> str:
     elif filename.lower().endswith(".docx"):
         return extract_docx(file_bytes)
     else:
-        raise ValueError(f"Fromat du fichier {filename} n'est pas supporte")
+        raise HTTPException(status_code=401,detail=f"Fromat du fichier {filename} n'est pas supporte")
 
