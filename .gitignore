@@ -14,3 +14,7 @@ __pycache__/
 
 # Claude Code skills (outils locaux, pas de code projet)
 .claude/
+
+# Node (au cas où npm install est lancé depuis la racine par erreur)
+node_modules/
+package-lock.json
