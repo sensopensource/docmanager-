@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocManager — Créer un accès</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          ink:    "#0b0b0c",
+          panel:  "#0f0f10",
+          elev:   "#141416",
+          line:   "#1d1d20",
+          line2:  "#262629",
+          mute:   "#6b6b70",
+          soft:   "#9a9aa0",
+          bright: "#e7e7ea",
+          ok:     "#6ac98a",
+        },
+        borderRadius: { DEFAULT: "0px", sm: "0px", md: "0px", lg: "0px", xl: "0px", "2xl": "0px", full: "0px" },
+        fontFamily: {
+          body: ["Inter", "sans-serif"],
+          mono: ["JetBrains Mono", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #0b0b0c; }
+  body {
+    font-family: "Inter", sans-serif;
+    color: #e7e7ea;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20;
+  }
+
+  .hair-b { border-bottom: 0.5px solid #1d1d20; }
+  .hair-t { border-top: 0.5px solid #1d1d20; }
+  .hair-r { border-right: 0.5px solid #1d1d20; }
+  .hair-l { border-left: 0.5px solid #1d1d20; }
+  .hair   { border: 0.5px solid #1d1d20; }
+
+  .grid-bg {
+    background-color: #0b0b0c;
+    background-image: radial-gradient(rgba(255,255,255,0.08) 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+  }
+  .vignette::before {
+    content: "";
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(11,11,12,0.55) 60%, rgba(11,11,12,0.92) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .noise::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #26262a; }
+  ::-webkit-scrollbar-thumb:hover { background: #38383d; }
+
+  .input {
+    width: 100%;
+    background: #060607;
+    border: 0.5px solid #262629;
+    color: #e7e7ea;
+    font-size: 13.5px;
+    padding: 11px 14px;
+    font-family: "Inter", sans-serif;
+    transition: all 120ms ease;
+  }
+  .input::placeholder { color: #55555a; }
+  .input:focus { outline: none; border-color: #4a4a50; background: #08080a; box-shadow: none; }
+  .input-group { position: relative; }
+  .input-group .mat-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: #6b6b70; pointer-events: none;
+  }
+  .input.with-icon { padding-left: 38px; }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(180deg, #e8e4dc 0%, #c9c3b7 100%);
+    color: #141110;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 14px;
+    transition: all 120ms ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: inset 0 0.5px 0 rgba(255,255,255,0.25), 0 1px 0 rgba(0,0,0,0.3);
+  }
+  .btn-primary:hover { background: linear-gradient(180deg, #f0ecdf 0%, #d4cebf 100%); }
+  .btn-primary:active { opacity: 0.95; transform: scale(0.998); }
+
+  kbd {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 0.5px solid #262629;
+    background: #0f0f10;
+    color: #9a9aa0;
+  }
+
+  .section-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b70;
+  }
+
+  .corners { position: relative; }
+  .corners::before, .corners::after,
+  .corners > .c-tr, .corners > .c-bl {
+    content: ""; position: absolute; width: 10px; height: 10px; pointer-events: none;
+  }
+  .corners::before { top: -1px; left: -1px; border-top: 0.5px solid #4a4a50; border-left: 0.5px solid #4a4a50; }
+  .corners::after  { bottom: -1px; right: -1px; border-bottom: 0.5px solid #4a4a50; border-right: 0.5px solid #4a4a50; }
+  .corners > .c-tr { top: -1px; right: -1px; border-top: 0.5px solid #4a4a50; border-right: 0.5px solid #4a4a50; }
+  .corners > .c-bl { bottom: -1px; left: -1px; border-bottom: 0.5px solid #4a4a50; border-left: 0.5px solid #4a4a50; }
+
+  .chk {
+    width: 14px; height: 14px;
+    border: 0.5px solid #38383d;
+    background: #0d0d0f;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 120ms ease;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .chk input { display: none; }
+  .chk.on { background: #e7e7ea; border-color: #e7e7ea; }
+  .chk.on::after { content: ""; width: 6px; height: 6px; background: #0b0b0c; }
+
+  /* Password strength meter */
+  .meter { display: flex; gap: 3px; margin-top: 8px; }
+  .meter > div {
+    flex: 1; height: 3px; background: #1d1d20; transition: background 200ms ease;
+  }
+  .meter.s1 > div:nth-child(1) { background: #c96a6a; }
+  .meter.s2 > div:nth-child(-n+2) { background: #c9a76a; }
+  .meter.s3 > div:nth-child(-n+3) { background: #c9a76a; }
+  .meter.s4 > div { background: #6ac98a; }
+</style>
+</head>
+<body class="noise vignette grid-bg h-screen w-full overflow-auto">
+
+<!-- Top corner branding -->
+<div class="fixed top-0 left-0 right-0 flex items-center justify-between px-6 h-12 z-20 bg-ink/40 backdrop-blur-sm">
+  <div class="flex items-center gap-2.5">
+    <div class="w-5 h-5 hair flex items-center justify-center bg-ink">
+      <span class="material-symbols-outlined text-[12px] text-soft">inventory_2</span>
+    </div>
+    <span class="text-[13px] font-semibold tracking-tight text-bright">Archive</span>
+    <span class="text-[13px] font-mono text-mute">.sys</span>
+  </div>
+  <div class="flex items-center gap-3 font-mono text-[10.5px] text-mute">
+    <span>v0.1.0</span>
+    <span class="text-line2">·</span>
+    <span>Sup MTI</span>
+  </div>
+</div>
+
+<!-- Bottom footer strip -->
+<div class="fixed bottom-0 left-0 right-0 flex items-center justify-between px-6 h-10 z-20 font-mono text-[10.5px] text-mute bg-ink/40 backdrop-blur-sm">
+  <span>© 2026 · DocManager</span>
+  <div class="flex items-center gap-4">
+    <a href="#" class="hover:text-bright transition-colors">Aide</a>
+    <a href="#" class="hover:text-bright transition-colors">Confidentialité</a>
+    <a href="#" class="hover:text-bright transition-colors">CGU</a>
+  </div>
+</div>
+
+<!-- Center card -->
+<main class="relative z-10 min-h-full w-full flex items-center justify-center px-4 py-20">
+
+  <div class="w-full max-w-[440px] relative">
+
+    <!-- Intro above card -->
+    <div class="mb-8 text-center">
+      <div class="section-label mb-3">Nouvel accès</div>
+      <h1 class="text-[28px] font-semibold tracking-tight text-bright">Créer un compte</h1>
+      <p class="text-[13px] text-soft mt-2">Rejoignez l'archive pour gérer vos documents.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="corners bg-panel/90 backdrop-blur-sm hair p-7">
+      <span class="c-tr"></span>
+      <span class="c-bl"></span>
+
+      <form class="space-y-3">
+
+        <!-- Name row (first + last) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="section-label block mb-1.5" for="first">Prénom</label>
+            <div class="input-group">
+              <span class="material-symbols-outlined mat-icon">person</span>
+              <input id="first" type="text" class="input with-icon" placeholder="Ayoub" autocomplete="given-name"/>
+            </div>
+          </div>
+          <div>
+            <label class="section-label block mb-1.5" for="last">Nom</label>
+            <div class="input-group">
+              <input id="last" type="text" class="input" placeholder="Souidi" autocomplete="family-name"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="section-label block mb-1.5" for="email">E-mail</label>
+          <div class="input-group">
+            <span class="material-symbols-outlined mat-icon">mail</span>
+            <input id="email" type="email" class="input with-icon" placeholder="souidi.ayoub@supmti.ac.ma" autocomplete="email"/>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="section-label block mb-1.5" for="password">Mot de passe</label>
+          <div class="input-group">
+            <span class="material-symbols-outlined mat-icon">lock</span>
+            <input id="password" type="password" class="input with-icon" placeholder="Au moins 8 caractères" autocomplete="new-password"/>
+            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-mute hover:text-bright transition-colors">
+              <span class="material-symbols-outlined text-[16px]">visibility</span>
+            </button>
+          </div>
+          <!-- Strength meter -->
+          <div class="meter s3">
+            <div></div><div></div><div></div><div></div>
+          </div>
+          <div class="flex items-center justify-between mt-1.5">
+            <span class="font-mono text-[10px] text-mute">Force du mot de passe</span>
+            <span class="font-mono text-[10px] text-soft">Bon</span>
+          </div>
+        </div>
+
+        <!-- Confirm -->
+        <div>
+          <label class="section-label block mb-1.5" for="confirm">Confirmation</label>
+          <div class="input-group">
+            <span class="material-symbols-outlined mat-icon">lock</span>
+            <input id="confirm" type="password" class="input with-icon" placeholder="Retapez votre mot de passe" autocomplete="new-password"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-ok">check</span>
+          </div>
+        </div>
+
+        <!-- Terms checkbox -->
+        <label class="flex items-start gap-2.5 pt-2 cursor-pointer select-none">
+          <span class="chk on"><input type="checkbox" checked/></span>
+          <span class="text-[12.5px] text-soft leading-[1.55]">
+            J'accepte les
+            <a href="#" class="text-bright hover:underline underline-offset-2">conditions d'utilisation</a>
+            et la
+            <a href="#" class="text-bright hover:underline underline-offset-2">politique de confidentialité</a>.
+          </span>
+        </label>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary mt-5">
+          <span>Créer mon compte</span>
+          <span class="material-symbols-outlined text-[16px]" style="color: #141110">arrow_forward</span>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- Footer of card -->
+    <div class="mt-6 text-center text-[12.5px] text-soft">
+      Déjà un compte ?
+      <a href="v9-login.html" class="text-bright hover:underline underline-offset-2">Se connecter</a>
+    </div>
+
+    <!-- Trust line -->
+    <div class="mt-8 flex items-center justify-center gap-2 font-mono text-[10px] text-mute">
+      <span class="material-symbols-outlined text-[12px]">shield_lock</span>
+      <span>Vos données sont chiffrées · TLS 1.3</span>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mes Documents — V6 Glass Split</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        ink: "#08080a",
+        text: "#e8e8ea",
+        "text-soft": "#9a9aa2",
+        "text-muted": "#5c5c64",
+        "text-dim": "#3a3a40",
+        pdf: "#d65555",
+        docx: "#5b8fef",
+        txt: "#5ed68a",
+        md: "#f5c26b",
+        ai: "#b39cf5",
+        danger: "#ed6b6b"
+      },
+      borderRadius: { DEFAULT: "0px", lg: "0px", xl: "0px", full: "0px" },
+      fontFamily: {
+        body: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: "Inter", sans-serif; background: #08080a; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+
+  .ambient { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+  .blob { position: absolute; border-radius: 9999px; filter: blur(120px); opacity: 0.3; }
+  .blob-1 { top: -10%; left: 10%; width: 500px; height: 500px; background: #4a3a6a; }
+  .blob-2 { top: 50%; right: 10%; width: 550px; height: 550px; background: #2a4a6a; }
+  .blob-3 { bottom: -15%; left: 40%; width: 450px; height: 450px; background: #3a2a5a; }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+  .hair-b { border-bottom: 0.5px solid rgba(255,255,255,0.07); }
+  .hair-t { border-top: 0.5px solid rgba(255,255,255,0.07); }
+  .hair-l { border-left: 0.5px solid rgba(255,255,255,0.07); }
+  .hair-r { border-right: 0.5px solid rgba(255,255,255,0.07); }
+  .hair { border: 0.5px solid rgba(255,255,255,0.07); }
+
+  .glass {
+    background: rgba(20, 20, 24, 0.5);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+  }
+  .glass-strong {
+    background: rgba(14, 14, 18, 0.75);
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+  }
+  .glass-panel {
+    background: rgba(16, 16, 20, 0.78);
+    backdrop-filter: blur(36px) saturate(160%);
+    -webkit-backdrop-filter: blur(36px) saturate(160%);
+  }
+  .glass-soft {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  }
+
+  .row { transition: background 150ms; }
+  .row:hover { background: rgba(255,255,255,0.03); }
+  .row.selected {
+    background: rgba(255,255,255,0.06);
+    border-left: 2px solid #fff;
+    padding-left: calc(1.5rem - 2px);
+  }
+
+  .dot-pdf { background: #d65555; box-shadow: 0 0 8px rgba(214,85,85,0.6); }
+  .dot-docx { background: #5b8fef; box-shadow: 0 0 8px rgba(91,143,239,0.6); }
+  .dot-txt { background: #5ed68a; box-shadow: 0 0 8px rgba(94,214,138,0.6); }
+  .dot-md { background: #f5c26b; box-shadow: 0 0 8px rgba(245,194,107,0.6); }
+
+  .panel-slide { animation: slideIn 280ms cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  .ver-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 14px;
+    bottom: -10px;
+    width: 0.5px;
+    background: rgba(255,255,255,0.1);
+  }
+</style>
+</head>
+<body class="text-text min-h-screen overflow-hidden relative">
+
+<div class="ambient">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- TOP -->
+<header class="fixed top-0 left-0 right-0 h-14 z-50 glass-strong hair-b flex items-center px-6">
+  <div class="flex items-center gap-3 w-56 shrink-0">
+    <div class="w-6 h-6 glass hair flex items-center justify-center">
+      <span class="material-symbols-outlined text-text-soft" style="font-size:14px">inventory_2</span>
+    </div>
+    <span class="text-[13px] font-bold text-text">Archive</span>
+  </div>
+  <div class="flex-1 flex justify-center">
+    <div class="w-full max-w-md relative flex items-center glass hair h-9 hover:border-white/20 transition">
+      <span class="material-symbols-outlined text-text-muted pl-3" style="font-size:15px">search</span>
+      <input type="text" placeholder="Rechercher un document..." class="flex-1 bg-transparent text-[12px] text-text placeholder:text-text-muted focus:outline-none px-3"/>
+      <span class="mono text-[10px] text-text-muted mr-3">⌘K</span>
+    </div>
+  </div>
+  <div class="w-56 shrink-0 flex items-center justify-end gap-1">
+    <button class="w-9 h-9 flex items-center justify-center text-text-muted hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:18px">notifications</span>
+    </button>
+    <button class="w-9 h-9 flex items-center justify-center text-text-muted hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:18px">settings</span>
+    </button>
+    <div class="w-7 h-7 ml-2 glass hair flex items-center justify-center mono text-[10px] font-bold text-text">AS</div>
+  </div>
+</header>
+
+<!-- SIDE NAV -->
+<nav class="fixed left-0 top-14 bottom-0 w-56 glass-strong hair-r z-40 flex flex-col">
+  <div class="p-4">
+    <button class="w-full h-10 bg-white text-ink font-semibold text-[12px] flex items-center justify-center gap-2 hover:bg-text transition active:scale-[0.98]">
+      <span class="material-symbols-outlined" style="font-size:16px">add</span>
+      Nouveau document
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto px-3">
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-text glass-soft hair transition">
+      <span class="material-symbols-outlined" style="font-size:16px">folder_open</span>
+      <span class="text-[12px] font-medium">Mes documents</span>
+      <span class="ml-auto mono text-[10px] text-text-muted">243</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-text-soft hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:16px">search</span>
+      <span class="text-[12px]">Recherche IA</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-text-soft hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:16px">dashboard</span>
+      <span class="text-[12px]">Dashboard</span>
+    </a>
+    <div class="mono text-[9px] text-text-dim tracking-wider px-3 mt-8 mb-3">CATÉGORIES</div>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-text-soft hover:text-text transition"><span class="w-1.5 h-1.5 dot-pdf"></span><span class="text-[11px]">Contrats</span><span class="ml-auto mono text-[10px] text-text-muted">42</span></a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-text-soft hover:text-text transition"><span class="w-1.5 h-1.5 dot-docx"></span><span class="text-[11px]">Factures</span><span class="ml-auto mono text-[10px] text-text-muted">87</span></a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-text-soft hover:text-text transition"><span class="w-1.5 h-1.5 dot-txt"></span><span class="text-[11px]">Rapports</span><span class="ml-auto mono text-[10px] text-text-muted">56</span></a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 text-text-soft hover:text-text transition"><span class="w-1.5 h-1.5 dot-md"></span><span class="text-[11px]">Notes</span><span class="ml-auto mono text-[10px] text-text-muted">31</span></a>
+  </div>
+  <div class="p-4 hair-t">
+    <div class="mono text-[10px] text-text-muted mb-2">1.2 / 5 GB</div>
+    <div class="h-0.5 bg-white/5"><div class="h-full bg-white/50" style="width:24%"></div></div>
+  </div>
+</nav>
+
+<!-- MAIN split -->
+<main class="ml-56 pt-14 h-screen flex relative z-10">
+
+  <!-- LEFT: list -->
+  <section class="flex-1 flex flex-col overflow-hidden min-w-0">
+    <div class="px-8 pt-8 pb-5">
+      <div class="flex items-end justify-between mb-5">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-text">Mes documents</h1>
+          <p class="text-[12px] text-text-soft mt-1.5">243 fichiers</p>
+        </div>
+        <button class="h-9 px-4 glass hair hover:border-white/30 text-[12px] text-text flex items-center gap-2 transition">
+          <span class="material-symbols-outlined" style="font-size:14px">upload</span>
+          Uploader
+        </button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="h-8 px-3 glass hair hover:border-white/20 text-[11px] text-text-soft hover:text-text flex items-center gap-1.5 transition">Catégorie<span class="material-symbols-outlined" style="font-size:13px">expand_more</span></button>
+        <button class="h-8 px-3 glass hair hover:border-white/20 text-[11px] text-text-soft hover:text-text flex items-center gap-1.5 transition">Tag<span class="material-symbols-outlined" style="font-size:13px">expand_more</span></button>
+        <button class="h-8 px-3 glass hair hover:border-white/20 text-[11px] text-text-soft hover:text-text flex items-center gap-1.5 transition">Date<span class="material-symbols-outlined" style="font-size:13px">expand_more</span></button>
+      </div>
+    </div>
+
+    <!-- Rows -->
+    <div class="flex-1 overflow-y-auto hair-t">
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-pdf"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">Contrat SupMTI 2026</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Contrats · v3 · 19 avr.</div>
+        </div>
+      </div>
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-docx"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">Spec Fonctionnelle V2</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Rapports · v2 · 18 avr.</div>
+        </div>
+      </div>
+
+      <!-- Selected -->
+      <div class="row selected flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-txt"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-semibold text-text truncate flex items-center gap-2">
+            Meeting Notes 17 Avril
+            <span class="material-symbols-outlined text-ai" style="font-size:13px">auto_awesome</span>
+          </div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Notes · v1 · 17 avr.</div>
+        </div>
+      </div>
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-md"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">Architecture API</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Rapports · v2 · 12 avr.</div>
+        </div>
+      </div>
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-pdf"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">Facture OVH Mars 2026</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Factures · v1 · 15 avr.</div>
+        </div>
+      </div>
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-docx"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">CV Souidi Ayoub 2026</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Divers · v8 · 14 avr.</div>
+        </div>
+      </div>
+
+      <div class="row flex items-center px-6 h-16 hair-b cursor-pointer">
+        <div class="w-6 shrink-0 flex items-center"><span class="w-1.5 h-1.5 dot-txt"></span></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-medium text-text truncate">TODO Sprint S14</div>
+          <div class="text-[11px] text-text-muted truncate mt-0.5">Notes · v4 · 13 avr.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="h-11 hair-t flex items-center justify-between px-6 shrink-0 glass">
+      <div class="text-[10px] text-text-muted">Page 1 / 10</div>
+      <div class="flex items-center gap-1">
+        <button class="w-7 h-7 glass hair hover:border-white/20 text-text-muted hover:text-text flex items-center justify-center transition">
+          <span class="material-symbols-outlined" style="font-size:13px">chevron_left</span>
+        </button>
+        <button class="w-7 h-7 bg-white text-ink mono text-[10px] font-bold">1</button>
+        <button class="w-7 h-7 glass hair hover:border-white/20 text-text-soft mono text-[10px]">2</button>
+        <button class="w-7 h-7 glass hair hover:border-white/20 text-text-soft mono text-[10px]">3</button>
+        <button class="w-7 h-7 glass hair hover:border-white/20 text-text-muted hover:text-text flex items-center justify-center transition">
+          <span class="material-symbols-outlined" style="font-size:13px">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: panel détail -->
+  <aside class="w-[420px] hair-l glass-panel flex flex-col panel-slide shrink-0">
+
+    <!-- Header -->
+    <div class="p-6 hair-b">
+      <div class="flex items-start justify-between mb-5">
+        <div class="text-[10px] text-text-muted uppercase tracking-wider">Aperçu</div>
+        <button class="w-7 h-7 hover:bg-white/5 flex items-center justify-center text-text-muted hover:text-text transition">
+          <span class="material-symbols-outlined" style="font-size:16px">close</span>
+        </button>
+      </div>
+
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-2 h-2 dot-txt mt-2"></span>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[17px] font-semibold text-text leading-tight break-words">Meeting Notes 17 Avril</h2>
+          <div class="text-[11px] text-text-muted mt-1.5">Notes · v1 · 84 KB</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid grid-cols-4 gap-2">
+        <button class="h-11 glass hair hover:border-white/20 flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-text" style="font-size:16px">download</span>
+          <span class="text-[9px] text-text-muted group-hover:text-text">Télécharger</span>
+        </button>
+        <button class="h-11 glass hair hover:border-white/20 flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-text" style="font-size:16px">edit</span>
+          <span class="text-[9px] text-text-muted group-hover:text-text">Modifier</span>
+        </button>
+        <button class="h-11 glass hair hover:border-ai/40 flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-ai" style="font-size:16px">auto_awesome</span>
+          <span class="text-[9px] text-ai">IA</span>
+        </button>
+        <button class="h-11 glass hair hover:border-danger/40 flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-danger" style="font-size:16px">delete</span>
+          <span class="text-[9px] text-text-muted group-hover:text-danger">Supprimer</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- AI Summary -->
+      <div class="p-6 hair-b">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 text-[10px] text-text-muted uppercase tracking-wider">
+            <span class="material-symbols-outlined text-ai" style="font-size:12px">auto_awesome</span>
+            Résumé IA
+          </div>
+          <button class="text-[10px] text-text-muted hover:text-text transition">Regénérer</button>
+        </div>
+        <p class="text-[12px] leading-relaxed text-text-soft">
+          Réunion avec le tuteur sur l'avancement du backend FastAPI. Points validés : authentification JWT, modèle Document + Version, endpoints CRUD complets. À venir : recherche full-text PostgreSQL et intégration LLM.
+        </p>
+        <div class="mt-3 text-[10px] text-text-dim mono">17 avr. 16:12 · GPT-4o-mini</div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="p-6 hair-b">
+        <div class="text-[10px] text-text-muted uppercase tracking-wider mb-4">Informations</div>
+        <dl class="space-y-3">
+          <div class="flex items-center">
+            <dt class="text-[11px] text-text-muted w-24 shrink-0">Catégorie</dt>
+            <dd class="text-[12px] text-text">Notes</dd>
+          </div>
+          <div class="flex items-center">
+            <dt class="text-[11px] text-text-muted w-24 shrink-0">Créé le</dt>
+            <dd class="text-[12px] text-text mono">17 avr. 16:05</dd>
+          </div>
+          <div class="flex items-start">
+            <dt class="text-[11px] text-text-muted w-24 shrink-0 pt-0.5">Tags</dt>
+            <dd class="flex flex-wrap gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 glass hair text-text-soft">meeting</span>
+              <span class="text-[10px] px-2 py-0.5 glass hair text-text-soft">tuteur</span>
+              <button class="text-[10px] px-2 py-0.5 glass hair text-text-muted hover:text-text hover:border-white/20 transition">+</button>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Versions -->
+      <div class="p-6 hair-b">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-[10px] text-text-muted uppercase tracking-wider">Historique</div>
+          <span class="text-[11px] text-text-muted">1 version</span>
+        </div>
+        <div class="space-y-1">
+          <div class="ver-item relative pl-5">
+            <div class="absolute left-1 top-1.5 w-2 h-2 bg-white"></div>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-[12px] text-text">v1 <span class="text-[10px] text-text-muted ml-1.5">— actuelle</span></div>
+                <div class="text-[10px] text-text-muted mt-0.5 mono">17 avr. 16:05 · 84 KB</div>
+              </div>
+              <button class="w-7 h-7 glass hair hover:border-white/20 text-text-muted hover:text-text flex items-center justify-center transition">
+                <span class="material-symbols-outlined" style="font-size:14px">download</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="mt-4 w-full h-9 glass hair hover:border-white/20 text-[11px] text-text-soft hover:text-text flex items-center justify-center gap-2 transition">
+          <span class="material-symbols-outlined" style="font-size:14px">upload</span>
+          Nouvelle version
+        </button>
+      </div>
+
+      <!-- Content preview -->
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[10px] text-text-muted uppercase tracking-wider">Aperçu du contenu</div>
+          <button class="text-[10px] text-text-muted hover:text-text transition">Tout voir</button>
+        </div>
+        <div class="glass hair p-4 text-[11px] text-text-soft leading-relaxed mono max-h-40 overflow-y-auto">
+          <span class="text-text-muted">Réunion 17/04 - 15h30</span><br/>
+          Présents : Ayoub, M. Bennani<br/><br/>
+          <span class="text-text">Validé</span><br/>
+          · Auth JWT<br/>
+          · Modèle Document + Version<br/>
+          · CRUD documents<br/><br/>
+          <span class="text-text">À venir</span><br/>
+          · Recherche full-text<br/>
+          · Intégration LLM...
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+</main>
+
+</body>
+</html>

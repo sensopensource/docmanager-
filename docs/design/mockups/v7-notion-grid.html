@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocManager — Archive.Sys</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          ink:      "#0b0b0c",
+          panel:    "#0f0f10",
+          elev:     "#141416",
+          line:     "#1d1d20",
+          line2:    "#262629",
+          mute:     "#6b6b70",
+          soft:     "#9a9aa0",
+          bright:   "#e7e7ea",
+          pdf:      "#c96a6a",
+          docx:     "#6a8fc9",
+          txt:      "#6ac98a",
+          md:       "#c9a76a",
+          ai:       "#a89cd6",
+        },
+        borderRadius: { DEFAULT: "0px", sm: "0px", md: "0px", lg: "0px", xl: "0px", "2xl": "0px", full: "0px" },
+        fontFamily: {
+          body: ["Inter", "sans-serif"],
+          mono: ["JetBrains Mono", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #0b0b0c; }
+  body {
+    font-family: "Inter", sans-serif;
+    color: #e7e7ea;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20;
+  }
+  /* Hairlines */
+  .hair-b { border-bottom: 0.5px solid #1d1d20; }
+  .hair-t { border-top: 0.5px solid #1d1d20; }
+  .hair-r { border-right: 0.5px solid #1d1d20; }
+  .hair-l { border-left: 0.5px solid #1d1d20; }
+  .hair   { border: 0.5px solid #1d1d20; }
+  /* Notion-style grid background — subtle dots */
+  .grid-bg {
+    background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: 0 0;
+  }
+  /* Very fine noise layer on top of everything */
+  .noise::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    z-index: 100;
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #26262a; }
+  ::-webkit-scrollbar-thumb:hover { background: #38383d; }
+
+  /* Rows — Slitch style: alternating grey tint for row separation */
+  .row { position: relative; background: #0d0d0f; }
+  .row-alt { background: #101013; }
+  .row:hover, .row-alt:hover { background: #16161a; }
+
+  /* Type sidelines — full-height 2px bar on the left of each row, like Slitch */
+  .row::before, .row-alt::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: transparent;
+  }
+  .type-pdf::before  { background: #c96a6a; }
+  .type-docx::before { background: #6a8fc9; }
+  .type-txt::before  { background: #6ac98a; }
+  .type-md::before   { background: #c9a76a; }
+
+  /* Selected row — brighter bg + white sideline overrides the type color */
+  .row-selected { background: #1a1a1e !important; }
+  .row-selected::before { background: #e7e7ea !important; width: 2px; }
+
+  /* Inputs */
+  input:focus { outline: none; box-shadow: none; }
+
+  /* Subtle kbd */
+  kbd {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 0.5px solid #262629;
+    background: #0f0f10;
+    color: #9a9aa0;
+  }
+  kbd.on-light {
+    background: rgba(11, 11, 12, 0.08);
+    border-color: rgba(11, 11, 12, 0.15);
+    color: rgba(11, 11, 12, 0.6);
+  }
+
+  /* Type dot — very discreet, just a hint of color */
+  .type-dot { width: 5px; height: 5px; display: inline-block; }
+
+  /* Detail panel section title */
+  .section-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b70;
+  }
+
+  /* Minimal button */
+  .btn-ghost {
+    font-size: 12px;
+    color: #9a9aa0;
+    padding: 6px 10px;
+    border: 0.5px solid #1d1d20;
+    transition: all 120ms ease;
+  }
+  .btn-ghost:hover { color: #e7e7ea; border-color: #38383d; background: #141416; }
+
+  .btn-primary {
+    font-size: 12px;
+    color: #0b0b0c;
+    background: #e7e7ea;
+    padding: 6px 12px;
+    font-weight: 600;
+    transition: all 120ms ease;
+  }
+  .btn-primary:hover { background: #ffffff; }
+
+  /* Inline detail scroll */
+  .detail-scroll { scrollbar-gutter: stable; }
+</style>
+</head>
+<body class="noise h-screen w-full overflow-hidden flex flex-col">
+
+<!-- Top bar -->
+<header class="h-12 flex items-center hair-b shrink-0 bg-ink/95 backdrop-blur-xl relative z-20">
+  <!-- Brand area -->
+  <div class="w-[260px] px-5 flex items-center gap-2.5 hair-r h-full">
+    <div class="w-5 h-5 hair flex items-center justify-center">
+      <span class="material-symbols-outlined text-[12px] text-soft">inventory_2</span>
+    </div>
+    <span class="text-[13px] font-semibold tracking-tight text-bright">Archive</span>
+    <span class="text-[13px] font-mono text-mute">.sys</span>
+  </div>
+
+  <!-- Search -->
+  <div class="flex-1 h-full flex items-center px-4">
+    <div class="flex items-center gap-2 w-full max-w-[480px]">
+      <span class="material-symbols-outlined text-[16px] text-mute">search</span>
+      <input type="text" placeholder="Rechercher dans vos documents…" class="flex-1 bg-transparent border-none text-[13px] placeholder:text-mute text-bright p-0"/>
+      <kbd>⌘K</kbd>
+    </div>
+  </div>
+
+  <!-- Right actions -->
+  <div class="flex items-center gap-1 px-3 h-full">
+    <button class="w-8 h-8 flex items-center justify-center text-mute hover:text-bright transition-colors">
+      <span class="material-symbols-outlined text-[18px]">notifications</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center text-mute hover:text-bright transition-colors">
+      <span class="material-symbols-outlined text-[18px]">settings</span>
+    </button>
+    <div class="w-7 h-7 ml-2 hair bg-elev flex items-center justify-center">
+      <span class="text-[10px] font-mono text-soft">AS</span>
+    </div>
+  </div>
+</header>
+
+<!-- Body -->
+<div class="flex-1 flex overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-[280px] shrink-0 hair-r bg-panel flex flex-col">
+    <!-- Upload button — bold and imposing -->
+    <div class="p-4 hair-b">
+      <button class="w-full flex items-center gap-2.5 px-4 h-11 bg-bright text-ink text-[13px] font-semibold hover:bg-white transition-colors group">
+        <span class="material-symbols-outlined text-[18px]" style="color: #0b0b0c">upload</span>
+        <span class="flex-1 text-left">Importer un document</span>
+        <kbd class="on-light">⌘U</kbd>
+      </button>
+      <button class="w-full mt-2 flex items-center gap-2 px-3 h-9 hair text-[12px] text-soft hover:text-bright hover:bg-elev transition-colors">
+        <span class="material-symbols-outlined text-[15px]">add</span>
+        <span class="flex-1 text-left">Nouveau dossier</span>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <div class="flex-1 overflow-y-auto py-2">
+
+      <div class="px-3 py-1.5">
+        <div class="section-label px-2 mb-1">Espace</div>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-bright bg-elev">
+          <span class="material-symbols-outlined text-[15px] text-soft">folder_open</span>
+          <span class="flex-1">Tous mes documents</span>
+          <span class="font-mono text-[10px] text-mute">248</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="material-symbols-outlined text-[15px] text-mute">schedule</span>
+          <span class="flex-1">Récents</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="material-symbols-outlined text-[15px] text-mute">star</span>
+          <span class="flex-1">Favoris</span>
+          <span class="font-mono text-[10px] text-mute">12</span>
+        </a>
+      </div>
+
+      <div class="px-3 py-1.5 mt-2">
+        <div class="section-label px-2 mb-1 flex items-center justify-between">
+          <span>Catégories</span>
+          <button class="text-mute hover:text-bright">
+            <span class="material-symbols-outlined text-[13px]">add</span>
+          </button>
+        </div>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="type-dot bg-pdf"></span>
+          <span class="flex-1">Contrats</span>
+          <span class="font-mono text-[10px] text-mute">34</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="type-dot bg-docx"></span>
+          <span class="flex-1">Rapports</span>
+          <span class="font-mono text-[10px] text-mute">57</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="type-dot bg-txt"></span>
+          <span class="flex-1">Notes de réunion</span>
+          <span class="font-mono text-[10px] text-mute">89</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="type-dot bg-md"></span>
+          <span class="flex-1">Documentation</span>
+          <span class="font-mono text-[10px] text-mute">41</span>
+        </a>
+        <a href="#" class="flex items-center gap-2 px-2 py-1.5 text-[12.5px] text-soft hover:text-bright hover:bg-elev transition-colors">
+          <span class="type-dot bg-ai"></span>
+          <span class="flex-1">Analysés par l'IA</span>
+          <span class="font-mono text-[10px] text-mute">27</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer storage -->
+    <div class="p-3 hair-t">
+      <div class="flex items-center justify-between text-[10.5px] font-mono text-mute mb-1.5">
+        <span>Stockage</span>
+        <span>2.4 / 10 GB</span>
+      </div>
+      <div class="h-[3px] bg-line w-full">
+        <div class="h-full bg-soft" style="width: 24%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 flex flex-col overflow-hidden grid-bg">
+
+    <!-- Header / breadcrumb + tools -->
+    <div class="px-6 pt-5 pb-4 hair-b flex items-end justify-between shrink-0">
+      <div>
+        <div class="flex items-center gap-2 text-[11px] font-mono text-mute mb-1.5">
+          <span>Archive</span>
+          <span class="text-line2">/</span>
+          <span class="text-soft">Tous mes documents</span>
+        </div>
+        <h1 class="text-[22px] font-semibold tracking-tight text-bright">Mes documents</h1>
+        <p class="text-[12px] text-soft mt-1">248 fichiers · 2.4 GB · dernière activité il y a 3 min</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="btn-ghost flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[15px]">tune</span>
+          <span>Filtrer</span>
+        </button>
+        <button class="btn-ghost flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[15px]">swap_vert</span>
+          <span>Trier</span>
+        </button>
+        <div class="w-[0.5px] h-5 bg-line mx-1"></div>
+        <button class="btn-primary flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[15px]" style="color: #0b0b0c">upload</span>
+          <span>Importer</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content area : list + inline detail panel -->
+    <div class="flex-1 flex overflow-hidden">
+
+      <!-- File list -->
+      <section class="flex-1 overflow-hidden flex flex-col">
+        <!-- Column headers -->
+        <div class="flex items-center px-6 h-9 hair-b bg-ink/60 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+          <div class="w-6"></div>
+          <div class="flex-1 min-w-0">Nom</div>
+          <div class="w-[120px] hidden lg:block">Catégorie</div>
+          <div class="w-[130px] hidden md:block">Modifié</div>
+          <div class="w-[80px] text-right">Taille</div>
+          <div class="w-[60px] text-right">IA</div>
+        </div>
+
+        <!-- Rows -->
+        <div class="flex-1 overflow-y-auto">
+
+          <!-- Selected row -->
+          <div class="row row-selected type-pdf flex items-center px-6 h-[44px] hair-b cursor-pointer">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">picture_as_pdf</span>
+              <span class="text-[13px] text-bright truncate">Contrat_stage_SupMTI_2026.pdf</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Contrats</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">20 avr, 14:32</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">1.2 MB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="row-alt type-docx flex items-center px-6 h-[44px] hair-b cursor-pointer relative">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">description</span>
+              <span class="text-[13px] text-bright truncate">Rapport_semaine_3.docx</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Rapports</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">19 avr, 17:08</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">412 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="row type-txt flex items-center px-6 h-[44px] hair-b cursor-pointer">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">article</span>
+              <span class="text-[13px] text-bright truncate">reunion_equipe_standup.txt</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Notes de réunion</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">19 avr, 10:15</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">18 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-mute">remove</span>
+            </div>
+          </div>
+
+          <div class="row-alt type-md flex items-center px-6 h-[44px] hair-b cursor-pointer relative">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">code_blocks</span>
+              <span class="text-[13px] text-bright truncate">architecture_docmanager.md</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Documentation</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">18 avr, 22:41</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">9 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="row type-pdf flex items-center px-6 h-[44px] hair-b cursor-pointer">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">picture_as_pdf</span>
+              <span class="text-[13px] text-bright truncate">Spec_fonctionnelle_MVP_v2.pdf</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Documentation</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">18 avr, 16:24</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">3.8 MB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="row-alt type-docx flex items-center px-6 h-[44px] hair-b cursor-pointer relative">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">description</span>
+              <span class="text-[13px] text-bright truncate">Compte_rendu_entretien_tuteur.docx</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Rapports</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">17 avr, 11:02</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">256 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-mute">remove</span>
+            </div>
+          </div>
+
+          <div class="row type-txt flex items-center px-6 h-[44px] hair-b cursor-pointer">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">article</span>
+              <span class="text-[13px] text-bright truncate">todo_semaine_4.txt</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Notes de réunion</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">16 avr, 09:55</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">4 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-mute">remove</span>
+            </div>
+          </div>
+
+          <div class="row-alt type-md flex items-center px-6 h-[44px] hair-b cursor-pointer relative">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">code_blocks</span>
+              <span class="text-[13px] text-bright truncate">api_endpoints_reference.md</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Documentation</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">15 avr, 14:48</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">12 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="row type-pdf flex items-center px-6 h-[44px] hair-b cursor-pointer">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">picture_as_pdf</span>
+              <span class="text-[13px] text-bright truncate">Facture_hebergement_mars.pdf</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Contrats</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">14 avr, 08:30</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">82 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-mute">remove</span>
+            </div>
+          </div>
+
+          <div class="row-alt type-docx flex items-center px-6 h-[44px] hair-b cursor-pointer relative">
+            <div class="w-6"></div>
+            <div class="flex-1 min-w-0 flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-soft">description</span>
+              <span class="text-[13px] text-bright truncate">Brief_projet_stage_v1.docx</span>
+            </div>
+            <div class="w-[120px] hidden lg:flex items-center">
+              <span class="text-[11.5px] text-soft">Rapports</span>
+            </div>
+            <div class="w-[130px] hidden md:block font-mono text-[11px] text-mute">12 avr, 16:15</div>
+            <div class="w-[80px] text-right font-mono text-[11px] text-mute">640 KB</div>
+            <div class="w-[60px] flex justify-end">
+              <span class="material-symbols-outlined text-[15px] text-ai">auto_awesome</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Pagination footer -->
+        <div class="h-10 shrink-0 hair-t px-6 flex items-center justify-between bg-ink/60">
+          <span class="font-mono text-[10.5px] text-mute">10 sur 248</span>
+          <div class="flex items-center gap-1">
+            <button class="w-7 h-7 flex items-center justify-center text-mute hover:text-bright hair">
+              <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+            </button>
+            <span class="font-mono text-[11px] text-soft px-2">1 / 25</span>
+            <button class="w-7 h-7 flex items-center justify-center text-bright hair">
+              <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inline detail panel -->
+      <aside class="w-[400px] shrink-0 hair-l bg-panel flex flex-col overflow-hidden">
+
+        <!-- Panel header -->
+        <div class="px-5 py-4 hair-b flex items-start justify-between shrink-0">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-9 h-9 shrink-0 hair flex items-center justify-center relative">
+              <span class="material-symbols-outlined text-[20px] text-soft">picture_as_pdf</span>
+              <span class="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-pdf"></span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-[13.5px] font-semibold text-bright truncate">Contrat_stage_SupMTI_2026.pdf</h2>
+              <div class="flex items-center gap-2 mt-1 font-mono text-[10.5px] text-mute">
+                <span>PDF</span>
+                <span class="text-line2">·</span>
+                <span>1.2 MB</span>
+                <span class="text-line2">·</span>
+                <span>v3</span>
+              </div>
+            </div>
+          </div>
+          <button class="w-7 h-7 flex items-center justify-center text-mute hover:text-bright transition-colors">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+
+        <!-- Action bar -->
+        <div class="px-5 py-3 hair-b flex items-center gap-2 shrink-0">
+          <button class="btn-primary flex items-center gap-1.5 flex-1 justify-center">
+            <span class="material-symbols-outlined text-[14px]" style="color: #0b0b0c">download</span>
+            <span>Télécharger</span>
+          </button>
+          <button class="btn-ghost flex items-center justify-center w-9 h-[30px]" title="Renommer">
+            <span class="material-symbols-outlined text-[15px]">edit</span>
+          </button>
+          <button class="btn-ghost flex items-center justify-center w-9 h-[30px]" title="Déplacer">
+            <span class="material-symbols-outlined text-[15px]">drive_file_move</span>
+          </button>
+          <button class="btn-ghost flex items-center justify-center w-9 h-[30px]" title="Supprimer">
+            <span class="material-symbols-outlined text-[15px]">delete</span>
+          </button>
+        </div>
+
+        <!-- Scrollable content -->
+        <div class="flex-1 overflow-y-auto detail-scroll">
+
+          <!-- AI summary -->
+          <div class="px-5 py-4 hair-b">
+            <div class="flex items-center justify-between mb-3">
+              <div class="section-label flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[12px] text-ai">auto_awesome</span>
+                <span>Résumé IA</span>
+              </div>
+              <button class="font-mono text-[10px] text-mute hover:text-bright">regénérer</button>
+            </div>
+            <p class="text-[12.5px] text-soft leading-[1.65]">
+              Convention de stage de 8 semaines à Sup MTI (du 17 mars au 9 mai 2026) portant sur le développement d'un gestionnaire de documents avec recherche intelligente. Tuteur : M. Khalid Benali. Rémunération : 3 200 MAD/mois. Les livrables attendus sont un MVP fonctionnel et un rapport de fin de stage.
+            </p>
+          </div>
+
+          <!-- Metadata -->
+          <div class="px-5 py-4 hair-b">
+            <div class="section-label mb-3">Informations</div>
+            <dl class="space-y-2.5 text-[12px]">
+              <div class="flex items-start justify-between gap-4">
+                <dt class="text-mute">Catégorie</dt>
+                <dd class="text-bright flex items-center gap-1.5">
+                  <span class="type-dot bg-pdf"></span>
+                  <span>Contrats</span>
+                </dd>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <dt class="text-mute">Créé</dt>
+                <dd class="text-bright font-mono text-[11px]">15 mars 2026, 09:12</dd>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <dt class="text-mute">Modifié</dt>
+                <dd class="text-bright font-mono text-[11px]">20 avr 2026, 14:32</dd>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <dt class="text-mute">Auteur</dt>
+                <dd class="text-bright">Ayoub Souidi</dd>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <dt class="text-mute">Tags</dt>
+                <dd class="flex flex-wrap gap-1 justify-end">
+                  <span class="hair px-1.5 py-0.5 font-mono text-[10px] text-soft">stage</span>
+                  <span class="hair px-1.5 py-0.5 font-mono text-[10px] text-soft">sup-mti</span>
+                  <span class="hair px-1.5 py-0.5 font-mono text-[10px] text-soft">2026</span>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Versions -->
+          <div class="px-5 py-4 hair-b">
+            <div class="flex items-center justify-between mb-3">
+              <div class="section-label">Historique</div>
+              <span class="font-mono text-[10px] text-mute">3 versions</span>
+            </div>
+            <ol class="relative space-y-3">
+              <li class="flex items-start gap-3">
+                <div class="shrink-0 w-6 flex flex-col items-center pt-1">
+                  <span class="w-1.5 h-1.5 bg-bright"></span>
+                  <span class="w-[0.5px] flex-1 bg-line mt-1"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[12px] text-bright font-medium">v3</span>
+                    <span class="font-mono text-[10px] text-mute">— actuelle</span>
+                  </div>
+                  <p class="text-[11.5px] text-soft mt-0.5">Ajout de l'annexe de confidentialité</p>
+                  <span class="font-mono text-[10px] text-mute">20 avr, 14:32</span>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="shrink-0 w-6 flex flex-col items-center pt-1">
+                  <span class="w-1.5 h-1.5 hair"></span>
+                  <span class="w-[0.5px] flex-1 bg-line mt-1"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-[12px] text-soft font-medium">v2</span>
+                  <p class="text-[11.5px] text-mute mt-0.5">Correction des dates de début / fin</p>
+                  <span class="font-mono text-[10px] text-mute">02 avr, 10:18</span>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="shrink-0 w-6 flex flex-col items-center pt-1">
+                  <span class="w-1.5 h-1.5 hair"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-[12px] text-soft font-medium">v1</span>
+                  <p class="text-[11.5px] text-mute mt-0.5">Version initiale signée</p>
+                  <span class="font-mono text-[10px] text-mute">15 mars, 09:12</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Content preview -->
+          <div class="px-5 py-4">
+            <div class="section-label mb-3">Aperçu</div>
+            <div class="hair p-3 bg-ink/40 font-mono text-[10.5px] text-soft leading-[1.7] space-y-1.5">
+              <p class="text-bright">CONVENTION DE STAGE</p>
+              <p>Entre les soussignés :</p>
+              <p>L'établissement Sup MTI, représenté par…</p>
+              <p>Et le stagiaire, Ayoub Souidi, né le…</p>
+              <p class="text-mute">[…]</p>
+            </div>
+          </div>
+
+        </div>
+
+      </aside>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

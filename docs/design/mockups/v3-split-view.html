@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mes Documents — Archive.Sys | V3 Split View avec Panel Détail</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        ink: "#0a0a0a",
+        surface: "#0e0e0e",
+        "surface-1": "#131313",
+        "surface-2": "#1a1a1a",
+        "surface-3": "#242424",
+        "surface-4": "#2e2e2e",
+        hair: "#333333",
+        "hair-soft": "#262626",
+        text: "#e6e6e6",
+        "text-soft": "#a1a1a1",
+        "text-muted": "#6b6b6b",
+        "text-dim": "#4a4a4a",
+        accent: "#ffffff",
+        pdf: "#c13838",
+        docx: "#4b7bec",
+        txt: "#4ade80",
+        md: "#fbbf24",
+        ai: "#a78bfa",
+        danger: "#f87171"
+      },
+      borderRadius: { DEFAULT: "0px", lg: "0px", xl: "0px", full: "0px" },
+      fontFamily: {
+        body: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: "Inter", sans-serif; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 4px 4px;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #2e2e2e; }
+  ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+  .hair-b { border-bottom: 0.5px solid #333; }
+  .hair-t { border-top: 0.5px solid #333; }
+  .hair-l { border-left: 0.5px solid #333; }
+  .hair-r { border-right: 0.5px solid #333; }
+  .hair { border: 0.5px solid #333; }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  }
+  .blink { animation: blink 1.2s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .row:hover { background: #1a1a1a; }
+  .row.selected { background: #1f1f1f; }
+  .row.selected::before { background: #ffffff !important; width: 3px !important; }
+  .chip { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.05em; }
+  .kbd {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 0.5px solid #4a4a4a;
+    background: #1a1a1a;
+    color: #a1a1a1;
+  }
+  /* Slide-in panel */
+  .panel-slide {
+    animation: slideIn 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  /* Version timeline */
+  .ver-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 11px;
+    top: 20px;
+    bottom: -8px;
+    width: 0.5px;
+    background: #333;
+  }
+</style>
+</head>
+<body class="bg-ink text-text min-h-screen overflow-hidden">
+
+<!-- TOP APP BAR -->
+<header class="fixed top-0 left-0 right-0 h-14 z-50 bg-ink/95 backdrop-blur-xl hair-b flex items-center">
+  <div class="w-56 shrink-0 h-full flex items-center px-5 hair-r">
+    <div class="flex items-center gap-2.5">
+      <div class="w-6 h-6 hair bg-surface-3 flex items-center justify-center">
+        <span class="material-symbols-outlined text-text-soft" style="font-size:14px">inventory_2</span>
+      </div>
+      <div>
+        <div class="text-[11px] font-black tracking-[0.15em] text-accent">ARCHIVE.SYS</div>
+        <div class="mono text-[8px] text-text-muted tracking-widest">v2.4.0</div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-1 h-full flex items-center px-5 gap-4">
+    <div class="flex-1 max-w-xl relative flex items-center hair bg-surface-1 h-8">
+      <span class="material-symbols-outlined text-text-muted pl-3" style="font-size:14px">search</span>
+      <input type="text" placeholder="RECHERCHER UN DOCUMENT..." class="flex-1 bg-transparent mono text-[11px] tracking-wider text-text placeholder:text-text-dim focus:outline-none px-3"/>
+      <span class="kbd mr-2">⌘K</span>
+    </div>
+  </div>
+  <div class="h-full flex items-center px-4 gap-1 hair-l">
+    <button class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:18px">notifications</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text transition">
+      <span class="material-symbols-outlined" style="font-size:18px">settings</span>
+    </button>
+    <div class="w-px h-5 bg-hair mx-2"></div>
+    <div class="flex items-center gap-2 pr-2">
+      <div class="w-7 h-7 hair bg-surface-3 flex items-center justify-center mono text-[10px] font-bold text-text">AS</div>
+      <div class="hidden md:block">
+        <div class="text-[10px] font-bold text-text leading-tight">ayoub.s</div>
+        <div class="mono text-[8px] text-text-muted">operator</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDE NAV -->
+<nav class="fixed left-0 top-14 bottom-0 w-56 bg-surface hair-r z-40 flex flex-col">
+  <div class="p-3 hair-b">
+    <button class="w-full h-10 bg-accent text-ink font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-text transition">
+      <span class="material-symbols-outlined" style="font-size:16px">upload</span>
+      Uploader
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto py-3">
+    <div class="mono text-[9px] text-text-dim tracking-widest px-5 mb-2">NAVIGATION</div>
+    <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-text bg-surface-2 border-l-2 border-accent -ml-px">
+      <span class="material-symbols-outlined" style="font-size:16px">folder_open</span>
+      <span class="text-[12px] font-semibold">Mes documents</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-text-soft hover:text-text hover:bg-surface-1 transition">
+      <span class="material-symbols-outlined" style="font-size:16px">search</span>
+      <span class="text-[12px]">Recherche IA</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-text-soft hover:text-text hover:bg-surface-1 transition">
+      <span class="material-symbols-outlined" style="font-size:16px">dashboard</span>
+      <span class="text-[12px]">Dashboard</span>
+    </a>
+    <div class="mono text-[9px] text-text-dim tracking-widest px-5 mb-2 mt-6">CATÉGORIES</div>
+    <a href="#" class="flex items-center gap-3 px-5 py-2 text-text-soft hover:text-text hover:bg-surface-1"><span class="w-1.5 h-1.5 bg-pdf"></span><span class="text-[11px]">Contrats</span><span class="ml-auto mono text-[9px] text-text-muted">42</span></a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2 text-text-soft hover:text-text hover:bg-surface-1"><span class="w-1.5 h-1.5 bg-docx"></span><span class="text-[11px]">Factures</span><span class="ml-auto mono text-[9px] text-text-muted">87</span></a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2 text-text-soft hover:text-text hover:bg-surface-1"><span class="w-1.5 h-1.5 bg-txt"></span><span class="text-[11px]">Rapports</span><span class="ml-auto mono text-[9px] text-text-muted">56</span></a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2 text-text-soft hover:text-text hover:bg-surface-1"><span class="w-1.5 h-1.5 bg-md"></span><span class="text-[11px]">Notes</span><span class="ml-auto mono text-[9px] text-text-muted">31</span></a>
+    <a href="#" class="flex items-center gap-3 px-5 py-2 text-text-soft hover:text-text hover:bg-surface-1"><span class="w-1.5 h-1.5 bg-text-dim"></span><span class="text-[11px]">Divers</span><span class="ml-auto mono text-[9px] text-text-muted">27</span></a>
+  </div>
+  <div class="p-4 hair-t">
+    <div class="flex items-center justify-between mb-2">
+      <span class="mono text-[9px] text-text-muted tracking-widest">STOCKAGE</span>
+      <span class="mono text-[10px] text-text">1.2/5.0 GB</span>
+    </div>
+    <div class="h-1 bg-surface-2"><div class="h-full bg-accent" style="width:24%"></div></div>
+  </div>
+</nav>
+
+<!-- MAIN with split: list + detail panel -->
+<main class="ml-56 pt-14 h-screen flex">
+
+  <!-- Left: list -->
+  <section class="flex-1 flex flex-col overflow-hidden min-w-0">
+    <!-- Header -->
+    <div class="px-6 pt-5 pb-3 hair-b shrink-0">
+      <div class="flex items-end justify-between mb-3">
+        <div>
+          <div class="mono text-[10px] text-text-muted tracking-widest mb-1">ROOT / DOCUMENTS</div>
+          <h1 class="text-xl font-black tracking-tight text-accent">Mes documents</h1>
+        </div>
+        <button class="h-9 px-4 bg-accent text-ink mono text-[10px] font-bold tracking-widest flex items-center gap-2 hover:bg-text transition">
+          <span class="material-symbols-outlined" style="font-size:14px">upload</span>
+          NOUVEAU
+        </button>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button class="h-7 px-3 hair bg-surface-1 text-[10px] text-text-soft hover:text-text hover:border-accent mono tracking-wider flex items-center gap-1.5 transition">CATÉGORIE<span class="material-symbols-outlined" style="font-size:12px">expand_more</span></button>
+        <button class="h-7 px-3 hair bg-surface-1 text-[10px] text-text-soft hover:text-text hover:border-accent mono tracking-wider flex items-center gap-1.5 transition">TAG<span class="material-symbols-outlined" style="font-size:12px">expand_more</span></button>
+        <button class="h-7 px-3 hair bg-surface-1 text-[10px] text-text-soft hover:text-text hover:border-accent mono tracking-wider flex items-center gap-1.5 transition">DATE<span class="material-symbols-outlined" style="font-size:12px">expand_more</span></button>
+        <div class="ml-auto mono text-[10px] text-text-muted tracking-widest">243 OBJETS</div>
+      </div>
+    </div>
+
+    <!-- Table head -->
+    <div class="flex items-center px-6 h-9 hair-b bg-surface-2 mono text-[9px] tracking-widest text-text-muted shrink-0">
+      <div class="w-6 shrink-0"></div>
+      <div class="flex-1 min-w-[180px]">NOM</div>
+      <div class="w-20 hidden lg:block">CATÉGORIE</div>
+      <div class="w-12 text-center">VER</div>
+      <div class="w-28 text-right hidden md:block">MODIF.</div>
+    </div>
+
+    <!-- Rows -->
+    <div class="flex-1 overflow-y-auto">
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-pdf"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-pdf" style="font-size:16px">picture_as_pdf</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">Contrat_SupMTI_2026.pdf</span>
+          <span class="chip text-ai flex items-center gap-1 px-1 py-0.5 border-[0.5px] border-ai/40 shrink-0">
+            <span class="material-symbols-outlined" style="font-size:9px">auto_awesome</span>AI
+          </span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Contrats</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v3</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-19 14:22</div>
+      </div>
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-docx"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-docx" style="font-size:16px">description</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">Spec_Fonctionnelle_V2.docx</span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Rapports</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v2</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-18 09:41</div>
+      </div>
+
+      <!-- Selected (opened) -->
+      <div class="row selected relative flex items-center px-6 h-12 hair-b transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-txt"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-txt" style="font-size:16px">article</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-accent truncate">Meeting_Notes_17_04.txt</span>
+          <span class="chip text-ai flex items-center gap-1 px-1 py-0.5 border-[0.5px] border-ai/40 shrink-0">
+            <span class="material-symbols-outlined" style="font-size:9px">auto_awesome</span>AI
+          </span>
+          <span class="material-symbols-outlined text-accent ml-auto" style="font-size:14px">chevron_right</span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Notes</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v1</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-17 16:05</div>
+      </div>
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-md"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-md" style="font-size:16px">code</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">Architecture_API.md</span>
+          <span class="chip text-ai flex items-center gap-1 px-1 py-0.5 border-[0.5px] border-ai/40 shrink-0">
+            <span class="material-symbols-outlined" style="font-size:9px">auto_awesome</span>AI
+          </span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Rapports</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v2</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-12 23:17</div>
+      </div>
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-pdf"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-pdf" style="font-size:16px">picture_as_pdf</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">Facture_OVH_Mars_2026.pdf</span>
+          <span class="chip text-ai flex items-center gap-1 px-1 py-0.5 border-[0.5px] border-ai/40 shrink-0">
+            <span class="material-symbols-outlined" style="font-size:9px">auto_awesome</span>AI
+          </span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Factures</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v1</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-15 11:12</div>
+      </div>
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-docx"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-docx" style="font-size:16px">description</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">CV_Souidi_Ayoub_2026.docx</span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Divers</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v8</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-14 20:44</div>
+      </div>
+
+      <div class="row relative flex items-center px-6 h-12 hair-b bg-surface-1 transition-colors cursor-pointer">
+        <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-txt"></div>
+        <div class="w-6 shrink-0"><span class="material-symbols-outlined text-txt" style="font-size:16px">article</span></div>
+        <div class="flex-1 min-w-[180px] flex items-center gap-2">
+          <span class="text-[12px] font-semibold text-text truncate">TODO_Sprint_S14.txt</span>
+          <span class="chip text-ai flex items-center gap-1 px-1 py-0.5 border-[0.5px] border-ai/40 shrink-0">
+            <span class="material-symbols-outlined" style="font-size:9px">auto_awesome</span>AI
+          </span>
+        </div>
+        <div class="w-20 hidden lg:block mono text-[9px] text-text-muted tracking-wider uppercase">Notes</div>
+        <div class="w-12 text-center mono text-[11px] text-text">v4</div>
+        <div class="w-28 text-right hidden md:block mono text-[10px] text-text-muted">04-13 07:58</div>
+      </div>
+
+    </div>
+
+    <!-- Pagination (compact) -->
+    <div class="h-10 hair-t bg-surface-1 flex items-center justify-between px-6 shrink-0">
+      <div class="mono text-[10px] text-text-muted tracking-widest">PAGE 1/10</div>
+      <div class="flex items-center gap-1">
+        <button class="w-7 h-7 hair bg-surface-2 text-text-muted flex items-center justify-center"><span class="material-symbols-outlined" style="font-size:12px">chevron_left</span></button>
+        <button class="w-7 h-7 hair bg-accent text-ink mono text-[10px] font-bold">1</button>
+        <button class="w-7 h-7 hair bg-surface-2 text-text-soft mono text-[10px]">2</button>
+        <button class="w-7 h-7 hair bg-surface-2 text-text-soft mono text-[10px]">3</button>
+        <button class="w-7 h-7 hair bg-surface-2 text-text-muted flex items-center justify-center"><span class="material-symbols-outlined" style="font-size:12px">chevron_right</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Detail slide-in panel (shown open) -->
+  <aside class="w-[440px] hair-l bg-surface flex flex-col panel-slide shrink-0">
+
+    <!-- Panel header -->
+    <div class="p-5 hair-b">
+      <div class="flex items-start justify-between mb-4">
+        <div class="mono text-[10px] text-text-muted tracking-widest">DÉTAIL DU DOCUMENT</div>
+        <button class="w-6 h-6 hair bg-surface-1 flex items-center justify-center text-text-muted hover:text-text transition" title="Fermer">
+          <span class="material-symbols-outlined" style="font-size:14px">close</span>
+        </button>
+      </div>
+
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-12 h-12 hair bg-surface-1 flex items-center justify-center shrink-0 relative">
+          <span class="material-symbols-outlined text-txt" style="font-size:24px">article</span>
+          <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-txt"></div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[15px] font-black text-accent leading-tight break-words">Meeting_Notes_17_04.txt</h2>
+          <div class="mono text-[9px] text-text-muted tracking-widest mt-1.5 flex items-center gap-2">
+            <span>NOTES</span><span class="text-text-dim">·</span><span>v1</span><span class="text-text-dim">·</span><span>84 KB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid grid-cols-4 gap-1">
+        <button class="h-10 hair bg-surface-1 hover:bg-surface-2 hover:border-accent flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-text" style="font-size:16px">download</span>
+          <span class="mono text-[8px] text-text-muted group-hover:text-text tracking-widest">DOWNLOAD</span>
+        </button>
+        <button class="h-10 hair bg-surface-1 hover:bg-surface-2 hover:border-accent flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-text" style="font-size:16px">edit</span>
+          <span class="mono text-[8px] text-text-muted group-hover:text-text tracking-widest">EDIT</span>
+        </button>
+        <button class="h-10 hair bg-surface-1 hover:bg-surface-2 hover:border-ai flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-ai" style="font-size:16px">auto_awesome</span>
+          <span class="mono text-[8px] text-ai tracking-widest">AI</span>
+        </button>
+        <button class="h-10 hair bg-surface-1 hover:bg-surface-2 hover:border-danger flex flex-col items-center justify-center gap-0.5 transition group">
+          <span class="material-symbols-outlined text-text-soft group-hover:text-danger" style="font-size:16px">delete</span>
+          <span class="mono text-[8px] text-text-muted group-hover:text-danger tracking-widest">DELETE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- AI Summary -->
+      <div class="p-5 hair-b">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-1.5 mono text-[10px] text-text-muted tracking-widest">
+            <span class="material-symbols-outlined text-ai" style="font-size:12px">auto_awesome</span>
+            RÉSUMÉ GÉNÉRÉ PAR L'IA
+          </div>
+          <button class="mono text-[9px] text-text-muted hover:text-text transition tracking-widest">REGÉNÉRER</button>
+        </div>
+        <p class="text-[12px] leading-relaxed text-text-soft">
+          Réunion avec le tuteur sur l'avancement du backend FastAPI. Points validés : authentification JWT, modèle de données Document+Version, endpoints CRUD complets. Reste à implémenter : recherche full-text via PostgreSQL (tsvector) et intégration LLM pour les résumés automatiques.
+        </p>
+        <div class="mt-3 flex items-center gap-2 mono text-[9px] text-text-dim tracking-widest">
+          <span>GÉNÉRÉ 2026-04-17 16:12</span>
+          <span class="text-text-dim">·</span>
+          <span>GPT-4o-mini</span>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="p-5 hair-b">
+        <div class="mono text-[10px] text-text-muted tracking-widest mb-3">MÉTADONNÉES</div>
+        <dl class="space-y-2.5">
+          <div class="flex items-center gap-3">
+            <dt class="mono text-[10px] text-text-muted tracking-widest w-24 shrink-0">CATÉGORIE</dt>
+            <dd class="text-[11px] text-text">Notes</dd>
+          </div>
+          <div class="flex items-center gap-3">
+            <dt class="mono text-[10px] text-text-muted tracking-widest w-24 shrink-0">AUTEUR</dt>
+            <dd class="text-[11px] text-text">ayoub.s</dd>
+          </div>
+          <div class="flex items-center gap-3">
+            <dt class="mono text-[10px] text-text-muted tracking-widest w-24 shrink-0">CRÉÉ LE</dt>
+            <dd class="text-[11px] text-text mono">2026-04-17 16:05:00</dd>
+          </div>
+          <div class="flex items-center gap-3">
+            <dt class="mono text-[10px] text-text-muted tracking-widest w-24 shrink-0">MODIFIÉ</dt>
+            <dd class="text-[11px] text-text mono">2026-04-17 16:05:00</dd>
+          </div>
+          <div class="flex items-start gap-3">
+            <dt class="mono text-[10px] text-text-muted tracking-widest w-24 shrink-0 pt-0.5">TAGS</dt>
+            <dd class="flex flex-wrap gap-1.5">
+              <span class="chip px-1.5 py-0.5 bg-surface-3 text-text-soft">meeting</span>
+              <span class="chip px-1.5 py-0.5 bg-surface-3 text-text-soft">tuteur</span>
+              <button class="chip px-1.5 py-0.5 hair text-text-muted hover:text-text hover:border-accent transition">+ AJOUTER</button>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Version history -->
+      <div class="p-5 hair-b">
+        <div class="flex items-center justify-between mb-4">
+          <div class="mono text-[10px] text-text-muted tracking-widest">HISTORIQUE DES VERSIONS</div>
+          <span class="mono text-[10px] text-text">1 VERSION</span>
+        </div>
+        <div class="space-y-2">
+          <div class="ver-item relative pl-7">
+            <div class="absolute left-2 top-1.5 w-3 h-3 hair bg-accent"></div>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-[12px] font-bold text-text flex items-center gap-2">
+                  v1 <span class="chip px-1 py-0.5 bg-accent text-ink">ACTUELLE</span>
+                </div>
+                <div class="mono text-[10px] text-text-muted mt-0.5">2026-04-17 16:05 · 84 KB</div>
+              </div>
+              <button class="w-7 h-7 hair bg-surface-1 hover:border-accent text-text-muted hover:text-text flex items-center justify-center transition" title="Télécharger cette version">
+                <span class="material-symbols-outlined" style="font-size:14px">download</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="mt-4 w-full h-8 hair bg-surface-1 hover:bg-surface-2 hover:border-accent mono text-[10px] text-text-soft hover:text-text tracking-widest flex items-center justify-center gap-2 transition">
+          <span class="material-symbols-outlined" style="font-size:12px">upload</span>
+          UPLOADER UNE NOUVELLE VERSION
+        </button>
+      </div>
+
+      <!-- Content preview -->
+      <div class="p-5 hair-b">
+        <div class="mono text-[10px] text-text-muted tracking-widest mb-3 flex items-center justify-between">
+          <span>APERÇU DU CONTENU</span>
+          <button class="text-text-soft hover:text-text">VOIR TOUT →</button>
+        </div>
+        <div class="hair bg-surface-1 p-3 mono text-[10px] text-text-soft leading-relaxed max-h-40 overflow-y-auto">
+          <span class="text-text-muted"># Réunion 17/04/2026 - 15h30</span><br/>
+          Présents : Ayoub, M. Bennani (tuteur)<br/>
+          <br/>
+          <span class="text-accent">## Points validés</span><br/>
+          - [x] Auth JWT opérationnelle<br/>
+          - [x] Modèle Document + Version<br/>
+          - [x] Endpoints CRUD documents<br/>
+          <br/>
+          <span class="text-accent">## À faire (S15)</span><br/>
+          - [ ] Recherche full-text PostgreSQL (tsvector)<br/>
+          - [ ] Intégration LLM pour résumés...<br/>
+          <span class="blink w-1.5 h-3 bg-text-muted inline-block"></span>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="p-5">
+        <div class="mono text-[10px] text-danger tracking-widest mb-3">ZONE SENSIBLE</div>
+        <button class="w-full h-9 hair border-danger/40 bg-transparent hover:bg-danger/10 text-danger mono text-[10px] tracking-widest transition flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined" style="font-size:14px">delete_forever</span>
+          SUPPRIMER DÉFINITIVEMENT
+        </button>
+        <p class="mono text-[9px] text-text-dim mt-2 leading-relaxed">
+          La suppression est irréversible. Toutes les versions seront perdues.
+        </p>
+      </div>
+
+    </div>
+
+  </aside>
+
+</main>
+
+</body>
+</html>
