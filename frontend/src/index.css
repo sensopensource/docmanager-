@@ -1,11 +1,112 @@
 @import "tailwindcss";
 
+/* ─── DESIGN TOKENS — Senso Drive ────────────────────────────
+   Tokens du design system disponibles comme variables CSS
+   (utilisables via var(--name) dans le CSS classique)
+   ET comme classes Tailwind (via le bloc @theme plus bas).
+*/
+:root {
+  /* ─── BACKGROUNDS ─────────────────────────────── */
+  --bg-base:        #08090b;
+  --bg-surface-1:   #0f1014;
+  --bg-surface-2:   #161820;
+  --bg-surface-3:   #1c1f2e;
+  --bg-overlay:     rgba(8, 9, 11, 0.75);
 
-/* Override de l'autofill navigateur */
+  /* ─── BORDERS ─────────────────────────────────── */
+  --border-color:   #1e2030;
+  --border-subtle:  #141620;
+  --border-focus:   #ffffff;
+  --border-danger:  #c0392b;
+
+  /* ─── FOREGROUND / TEXT ───────────────────────── */
+  --fg-1:           #e8eaf0;
+  --fg-2:           #8b90a0;
+  --fg-3:           #4a4f60;
+  --fg-inverse:     #08090b;
+
+  /* ─── INTERACTIVE ─────────────────────────────── */
+  --color-primary-raw:  #ffffff;
+  --color-danger-raw:   #c0392b;
+  --color-success-raw:  #1e7a4a;
+  --color-ai-raw:       #6b4dff;
+
+  /* ─── FILE-TYPE ACCENTS ───────────────────────── */
+  --accent-pdf:     #ff6b5b;
+  --accent-docx:    #4db8ff;
+  --accent-txt:     #4edd8a;
+  --accent-md:      #ffd166;
+
+  /* ─── SPACING ─────────────────────────────────── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+
+  /* ─── ANIMATION ───────────────────────────────── */
+  --ease-out:    cubic-bezier(0.2, 0, 0, 1);
+  --duration-sm: 150ms;
+  --duration-md: 200ms;
+  --duration-lg: 300ms;
+}
+
+/* ─── CONFIG TAILWIND v4 ──────────────────────────────────────
+   Tout ce qui est dans @theme est exposé comme classes Tailwind.
+   Tailwind v4 attend des prefixes specifiques :
+   - --color-*  → genere les classes bg-*, text-*, border-*, etc.
+   - --font-*   → genere font-*
+*/
+@theme {
+  /* Couleurs — surfaces */
+  --color-base: #08090b;
+  --color-surface-1: #0f1014;
+  --color-surface-2: #161820;
+  --color-surface-3: #1c1f2e;
+
+  /* Couleurs — texte */
+  --color-fg-1: #e8eaf0;
+  --color-fg-2: #8b90a0;
+  --color-fg-3: #4a4f60;
+  --color-fg-inverse: #08090b;
+
+  /* Couleurs — bordures */
+  --color-border: #1e2030;
+  --color-border-subtle: #141620;
+
+  /* Couleurs — interactives */
+  --color-primary: #ffffff;
+  --color-danger: #c0392b;
+  --color-success: #1e7a4a;
+  --color-ai: #6b4dff;
+
+  /* Couleurs — accents par type de fichier */
+  --color-pdf: #ff6b5b;
+  --color-docx: #4db8ff;
+  --color-txt: #4edd8a;
+  --color-md: #ffd166;
+
+  /* Polices */
+  --font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
+}
+
+/* ─── BASE ──────────────────────────────────────────────────── */
+body {
+  background: var(--bg-base);
+  color: var(--fg-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── OVERRIDE AUTOFILL NAVIGATEUR ──────────────────────────── */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 30px black inset !important;
-  -webkit-text-fill-color: #f3f4f6 !important;
-  caret-color: #f3f4f6 !important;
+  -webkit-box-shadow: 0 0 0 30px var(--bg-surface-1) inset !important;
+  -webkit-text-fill-color: var(--fg-1) !important;
+  caret-color: var(--fg-1) !important;
 }
