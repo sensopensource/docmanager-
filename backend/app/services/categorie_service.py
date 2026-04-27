@@ -30,6 +30,27 @@ def create_categorie(db: Session,
 
     return categorie
 
+
+def get_or_create_default_categorie(db: Session,
+                                    id_utilisateur: int) -> Categorie:
+    # On cherche d'abord la categorie "Non classe" de l'user
+    categorie = db.query(Categorie).filter(
+        Categorie.nom == "Non classe",
+        Categorie.id_utilisateur == id_utilisateur,
+    ).first()
+
+    if categorie:
+        return categorie
+
+    # Sinon on la cree
+    nouvelle = Categorie(nom="Non classe",
+                         id_utilisateur=id_utilisateur)
+    db.add(nouvelle)
+    db.commit()
+    db.refresh(nouvelle)
+
+    return nouvelle
+
 def patch_categorie(db: Session,
                     id_categorie: int,
                     nom: str,

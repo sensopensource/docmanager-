@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -31,12 +31,16 @@ def register(
 
 @router.post("/login", response_model=Token)
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
+    adresse_ip = request.client.host if request.client else None
+
     user = auth_service.auth_utilisateur(db=db,
                                          email=form_data.username,
                                          password=form_data.password,
+                                         adresse_ip=adresse_ip,
                                         )
     if not user:
         raise HTTPException(status_code=401, detail="Informations invalides")
