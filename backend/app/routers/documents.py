@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Form, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail,DocumentPatch,DocumentSearchResult
+from app.schemas.document import DocumentCreate, DocumentRead, DocumentReadDetail,DocumentPatch,DocumentSearchResult,DocumentListResponse
 from app.services import document_service, categorie_service
 from app.models.categories import Categorie
 from fastapi.responses import FileResponse
@@ -50,9 +50,10 @@ async def upload_document(
     return document
 
 
-@router.get("/", response_model=list[DocumentRead])
+@router.get("/", response_model=DocumentListResponse)
 def list_documents(page: int = Query(1, ge=1),
                    size: int = Query(20, ge=1, le=100),
+                   id_categorie: int | None = Query(None),
                    db: Session = Depends(get_db),
                    current_user: Utilisateur = Depends(get_current_user)):
 
@@ -61,6 +62,7 @@ def list_documents(page: int = Query(1, ge=1),
         id_utilisateur=current_user.id,
         page=page,
         size=size,
+        id_categorie=id_categorie,
     )
     return documents
 

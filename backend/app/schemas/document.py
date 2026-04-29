@@ -40,3 +40,10 @@ class DocumentDownload(BaseModel):
 
 class DocumentSearchResult(DocumentRead):
     extrait: str | None = None
+
+
+class DocumentListResponse(BaseModel):
+    items: list[DocumentRead]
+    total: int
+    page: int
+    size: int

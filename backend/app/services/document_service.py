@@ -7,7 +7,7 @@ from sqlalchemy import func,or_
 
 from app.models.documents import Document
 from app.models.versions import Version
-from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload,DocumentSearchResult
+from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload,DocumentSearchResult,DocumentListResponse
 from app.services.extraction import extract_text
 from app.models.utilisateurs import Utilisateur
 
@@ -90,27 +90,38 @@ def get_latest_version(db: Session, document_id: int) -> Version | None:
 
 def list_documents(db: Session,
                    id_utilisateur: int,
-                   page: int=1,
-                   size:  int=20) -> list[DocumentRead]:
-    offset=(page -1 )*size
-    
-    documents = (db.query(Document)
+                   page: int = 1,
+                   size: int = 20,
+                   id_categorie: int | None = None) -> DocumentListResponse:
+    offset = (page - 1) * size
+
+    # On construit la query de base avec le filtre user (et optionnellement categorie)
+    base_query = db.query(Document).filter(Document.id_utilisateur == id_utilisateur)
+    if id_categorie is not None:
+        base_query = base_query.filter(Document.id_categorie == id_categorie)
+
+    # Total : pour la pagination cote front
+    total = base_query.count()
+
+    # La page demandee
+    documents = (base_query
                  .options(selectinload(Document.versions))
-                 .filter(Document.id_utilisateur==id_utilisateur)
                  .order_by(Document.date_creation.desc())
                  .offset(offset)
                  .limit(size)
                  .all())
-                 
-    
-    results = []
-    
+
+    items = []
     for doc in documents:
-        latest = max(doc.versions,key=lambda v:v.numero) if doc.versions else None
+        latest = max(doc.versions, key=lambda v: v.numero) if doc.versions else None
+        items.append(_to_document_read(document=doc, version=latest))
 
-        results.append(_to_document_read(document=doc,version=latest))
-
-    return results
+    return DocumentListResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+    )
 
 
 def get_document(db: Session,
