@@ -115,7 +115,7 @@ function DocumentDetailPanel({ documentId, onClose }: Props) {
       >
 
         {/* Header du panel */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-border">
           <div className="font-mono text-xs uppercase tracking-wider text-fg-3">
             Détail document
           </div>
@@ -164,34 +164,34 @@ function DocumentDetailPanel({ documentId, onClose }: Props) {
                         value={titreValue}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setTitreValue(e.target.value)}
                         autoFocus
-                        className="flex-1 bg-base border border-border text-fg-1 px-2 py-1 text-sm font-body focus:outline-none focus:border-primary"
+                        className="flex-1 bg-base border border-border-fg-3 text-fg-1 px-2 py-1 text-sm font-body focus:outline-none focus:border-primary"
                       />
                       <button
                         onClick={handleSaveTitre}
-                        className="text-fg-1 hover:text-primary transition-colors"
+                        className="flex items-center justify-center bg-surface-3 border border-success text-success w-8 h-8 hover:bg-surface-2 transition-colors text-lg leading-none"
                         aria-label="Valider"
                       >
-                        <span className="material-symbols-outlined text-base">check</span>
+                        ✓
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        className="text-fg-3 hover:text-fg-1 transition-colors"
+                        className="flex items-center justify-center bg-surface-3 border border-danger text-danger w-8 h-8 hover:bg-surface-2 transition-colors text-lg leading-none"
                         aria-label="Annuler"
                       >
-                        <span className="material-symbols-outlined text-base">close</span>
+                        ✕
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-2 group">
+                    <div className="flex items-start gap-2">
                       <h2 className="font-display text-xl text-fg-1 break-words flex-1">
                         {document.titre}
                       </h2>
                       <button
                         onClick={handleStartEdit}
-                        className="text-fg-3 hover:text-fg-1 opacity-0 group-hover:opacity-100 transition-opacity mt-1"
+                        className="flex items-center justify-center bg-surface-2 border border-border-fg-3 text-fg-2 w-7 h-7 hover:bg-surface-3 hover:text-fg-1 transition-colors mt-1 shrink-0"
                         aria-label="Renommer"
                       >
-                        <span className="material-symbols-outlined text-base">edit</span>
+                        <span className="material-symbols-outlined text-sm">edit</span>
                       </button>
                     </div>
                   )}
