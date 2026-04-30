@@ -41,3 +41,11 @@ export type DocumentDetail = Document & {
 export type DocumentSearchResult = Document & {
     extrait: string | null
 }
+
+// Pour GET /documents/ — items + total pour la pagination
+export type DocumentListResponse = {
+    items: Document[]
+    total: number
+    page: number
+    size: number
+}

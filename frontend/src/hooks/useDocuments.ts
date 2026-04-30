@@ -1,20 +1,23 @@
 import { apiFetch } from "../api"
-import type { Document } from "../types"
+import type { DocumentListResponse } from "../types"
 import { useQuery } from "@tanstack/react-query"
 
-export function useDocuments() {
-  const { data, isLoading, error } = useQuery<Document[]>({
-    queryKey: ['documents'],
+export function useDocuments(page: number = 1, size: number = 20, idCategorie: number | null = null) {
+  const { data, isLoading, error } = useQuery<DocumentListResponse>({
+    queryKey: ['documents', page, size, idCategorie],
     queryFn: async () => {
-      const response = await apiFetch("/documents")
+      const params = new URLSearchParams({ page: String(page), size: String(size) })
+      if (idCategorie != null) params.append('id_categorie', String(idCategorie))
+
+      const response = await apiFetch(`/documents/?${params}`)
       if (!response.ok) throw new Error("Erreur fetch documents")
-      const data = await response.json()
-      return data
+      return response.json()
     }
   })
 
   return {
-    documents: data ?? [],
+    documents: data?.items ?? [],
+    total: data?.total ?? 0,
     isLoading,
     error,
   }

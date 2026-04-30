@@ -1,16 +1,17 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import AppHeader from "../components/AppHeader"
+import AppSidebar from "../components/AppSidebar"
 
 function HomePage() {
   const { user } = useAuth()
 
   return (
     <div className="min-h-screen bg-base">
-      <AppHeader />
+      <AppSidebar />
 
-      {/* Contenu principal */}
-      <main className="max-w-4xl mx-auto px-6 py-16">
+      {/* Contenu principal — ml-60 pour decaler de la largeur de la sidebar */}
+      <main className="ml-60">
+        <div className="max-w-4xl mx-auto px-6 py-16">
 
         {/* Bloc bienvenue */}
         <div className="mb-12">
@@ -70,6 +71,7 @@ function HomePage() {
 
         </div>
 
+        </div>
       </main>
     </div>
   )

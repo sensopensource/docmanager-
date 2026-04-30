@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react"
 import CategorieCard from "../components/CategorieCard"
 import { useCategories } from "../hooks/useCategories"
-import AppHeader from "../components/AppHeader"
+import AppSidebar from "../components/AppSidebar"
 
 function CategoriesPage() {
   const { categories, addCategorie, updateCategorie } = useCategories()
@@ -16,9 +16,10 @@ function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-base">
-      <AppHeader />
+      <AppSidebar />
 
-      <main className="max-w-4xl mx-auto px-6 py-16">
+      <main className="ml-60">
+        <div className="max-w-4xl mx-auto px-6 py-16">
 
         {/* Bloc titre */}
         <div className="mb-12">
@@ -81,6 +82,7 @@ function CategoriesPage() {
           </ul>
         )}
 
+        </div>
       </main>
     </div>
   )
