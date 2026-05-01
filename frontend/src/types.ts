@@ -19,6 +19,14 @@ export type LoginResponse = {
 export type Categorie = {
     id: number
     nom: string
+    id_parent: number | null
+    count: number
+}
+
+// Forme de l'arbre construite cote front (a partir de la liste plate)
+export type CategorieNode = Categorie & {
+    children: CategorieNode[]
+    depth: number
 }
 
 export type Tag = {
@@ -34,6 +42,7 @@ export type Document = {
     auteur: string | null
     date_creation: string  // ISO string venant du back
     type_fichier: string | null  // "pdf" | "docx" | "txt" | "md" | null
+    id_categorie: number | null
     tags: Tag[]
 }
 

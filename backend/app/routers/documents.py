@@ -104,7 +104,8 @@ def patch_document(document_id: int,
                                                      document_id=document_id,
                                                      id_utilisateur=current_user.id,
                                                      titre=document.titre,
-                                                     auteur=document.auteur)
+                                                     auteur=document.auteur,
+                                                     id_categorie=document.id_categorie)
     if not nouveau_document:
         raise HTTPException(status_code=404,detail="Modification impossible")
     return nouveau_document

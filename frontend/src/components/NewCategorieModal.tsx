@@ -3,9 +3,11 @@ import { useCategories } from "../hooks/useCategories"
 
 type Props = {
   onClose: () => void
+  parentId?: number | null
+  parentNom?: string | null
 }
 
-function NewCategorieModal({ onClose }: Props) {
+function NewCategorieModal({ onClose, parentId = null, parentNom = null }: Props) {
   const { addCategorie } = useCategories()
   const [nom, setNom] = useState('')
 
@@ -21,7 +23,7 @@ function NewCategorieModal({ onClose }: Props) {
     e.preventDefault()
     const value = nom.trim()
     if (!value) return
-    addCategorie(value)
+    addCategorie({ nom: value, id_parent: parentId })
     onClose()
   }
 
@@ -35,7 +37,9 @@ function NewCategorieModal({ onClose }: Props) {
         className="w-[420px] bg-panel hair flex flex-col"
       >
         <div className="px-5 py-3 hair-b flex items-center justify-between">
-          <div className="section-label">Nouvelle catégorie</div>
+          <div className="section-label">
+            {parentNom ? `Sous-dossier de "${parentNom}"` : 'Nouveau dossier'}
+          </div>
           <button
             onClick={onClose}
             className="text-mute hover:text-bright transition-colors"
@@ -50,18 +54,12 @@ function NewCategorieModal({ onClose }: Props) {
             type="text"
             value={nom}
             onChange={(e) => setNom(e.target.value)}
-            placeholder="Nom de la catégorie..."
+            placeholder="Nom du dossier..."
             autoFocus
             className="bg-ink hair text-bright text-[13px] px-3 py-2 focus:outline-none focus:border-bright"
           />
           <div className="flex items-center justify-end gap-2 mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-ghost"
-            >
-              Annuler
-            </button>
+            <button type="button" onClick={onClose} className="btn-ghost">Annuler</button>
             <button
               type="submit"
               disabled={!nom.trim()}

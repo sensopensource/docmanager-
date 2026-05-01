@@ -7,6 +7,9 @@ type UpdateParams = {
   id: number
   titre?: string
   auteur?: string
+  id_categorie?: number
+  // Message custom pour le toast au succès (sinon message générique)
+  successMessage?: string
 }
 
 export function useUpdateDocument() {
@@ -14,10 +17,11 @@ export function useUpdateDocument() {
   const { showToast } = useToast()
 
   const mutation = useMutation({
-    mutationFn: async ({ id, titre, auteur }: UpdateParams) => {
-      const body: Record<string, string> = {}
+    mutationFn: async ({ id, titre, auteur, id_categorie }: UpdateParams) => {
+      const body: Record<string, string | number> = {}
       if (titre !== undefined) body.titre = titre
       if (auteur !== undefined) body.auteur = auteur
+      if (id_categorie !== undefined) body.id_categorie = id_categorie
 
       const response = await apiFetch(`/documents/${id}`, {
         method: 'PATCH',
@@ -33,10 +37,11 @@ export function useUpdateDocument() {
       return response.json() as Promise<Document>
     },
     onSuccess: (data, variables) => {
-      // Invalide la liste ET le detail de ce doc precis
       queryClient.invalidateQueries({ queryKey: ['documents'] })
       queryClient.invalidateQueries({ queryKey: ['document', variables.id] })
-      showToast(`Document renommé en "${data.titre}"`, 'success')
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      const message = variables.successMessage ?? `Document mis à jour : "${data.titre}"`
+      showToast(message, 'success')
     },
     onError: (error) => {
       showToast(error.message, 'error')

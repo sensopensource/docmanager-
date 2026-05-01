@@ -26,8 +26,9 @@ CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     nom TEXT NOT NULL,
     id_utilisateur int REFERENCES utilisateurs(id),
-    id_parent int REFERENCES categories(id)
-
+    id_parent int REFERENCES categories(id) ON DELETE CASCADE,
+    -- meme nom autorise dans des dossiers parents differents
+    CONSTRAINT unique_cat_nom_user_parent UNIQUE (nom, id_utilisateur, id_parent)
 );
 
 

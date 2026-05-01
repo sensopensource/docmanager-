@@ -1,5 +1,6 @@
 import type { Document, Categorie } from "../types"
 import DocumentRow from "./DocumentRow"
+import CategorieRow from "./CategorieRow"
 
 type Props = {
   items: Document[]
@@ -7,9 +8,21 @@ type Props = {
   onSelect: (id: number) => void
   categories: Categorie[]
   isSearchMode: boolean
+  subFolders?: Categorie[]
+  onOpenFolder?: (id: number) => void
+  onDropOnFolder?: (payload: { kind: 'doc' | 'folder'; id: number }, targetCategorieId: number) => void
 }
 
-function DocumentsTable({ items, selectedId, onSelect, categories, isSearchMode }: Props) {
+function DocumentsTable({
+  items,
+  selectedId,
+  onSelect,
+  categories,
+  isSearchMode,
+  subFolders = [],
+  onOpenFolder,
+  onDropOnFolder,
+}: Props) {
   const categorieNomById = new Map(categories.map(c => [c.id, c.nom]))
 
   return (
@@ -26,11 +39,24 @@ function DocumentsTable({ items, selectedId, onSelect, categories, isSearchMode 
 
       {/* Rows */}
       <div className="flex-1 overflow-y-auto">
+
+        {/* Sous-dossiers en tete */}
+        {subFolders.map((folder, idx) => (
+          <CategorieRow
+            key={`folder-${folder.id}`}
+            categorie={folder}
+            index={idx}
+            onClick={() => onOpenFolder?.(folder.id)}
+            onDrop={onDropOnFolder}
+          />
+        ))}
+
+        {/* Documents */}
         {items.map((doc, idx) => (
           <DocumentRow
             key={doc.id}
             document={doc}
-            index={idx}
+            index={subFolders.length + idx}
             isSelected={selectedId === doc.id}
             onClick={() => onSelect(doc.id)}
             categorieNom={doc.id_categorie ? categorieNomById.get(doc.id_categorie) : null}

@@ -27,47 +27,42 @@ function CategorieCard({ categorie, onUpdate }: Props) {
   const handleDelete = () => {
     if (!categorie.id) return
     deleteCategorie(categorie.id, {
-      onSuccess: () => {
-        setDeleteMode(false)
-      },
+      onSuccess: () => setDeleteMode(false),
     })
   }
 
   return (
-    <li className="flex items-center justify-between px-4 py-3 hover:bg-surface-2 transition-colors">
+    <li className="flex items-center justify-between px-4 py-3 hover:bg-elev transition-colors">
       {editMode ? (
         <>
-          {/* Mode édition */}
           <input
             type="text"
             value={nomEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setNomEdit(e.target.value)}
             autoFocus
-            className="flex-1 bg-base border border-border text-fg-1 px-2 py-1 text-sm font-body focus:outline-none focus:border-primary mr-3"
+            className="flex-1 bg-ink hair text-bright px-2 py-1 text-sm focus:outline-none focus:border-bright mr-3"
           />
           <div className="flex items-center gap-2">
             <button
               onClick={handleValidate}
-              className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-green-500 hover:text-primary transition-colors"
+              className="font-mono text-xs uppercase tracking-wider text-success hover:text-bright transition-colors"
             >
-              <span className="material-symbols-outlined">check</span>
               Valider
             </button>
             <button
               onClick={handleCancel}
-              className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-red-500 hover:text-fg-1 transition-colors"
+              className="font-mono text-xs uppercase tracking-wider text-mute hover:text-bright transition-colors"
             >
-              <span className="material-symbols-outlined">close</span>
               Annuler
             </button>
           </div>
         </>
       ) : (
         <>
-          {/* Mode affichage */}
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-fg-3 text-base">label</span>
-            <span className="font-body text-sm text-fg-1">{categorie.nom}</span>
+            <span className="material-symbols-outlined text-mute text-base">label</span>
+            <span className="font-body text-sm text-bright">{categorie.nom}</span>
+            <span className="font-mono text-[10px] text-mute">{categorie.count}</span>
           </div>
           <div className="flex items-center gap-2">
             {deleteMode ? (
@@ -75,16 +70,14 @@ function CategorieCard({ categorie, onUpdate }: Props) {
                 <button
                   onClick={handleDelete}
                   disabled={isPending}
-                  className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-red-500 hover:text-red-700 transition-colors"
+                  className="font-mono text-xs uppercase tracking-wider text-danger hover:text-bright transition-colors disabled:opacity-40"
                 >
-                  <span className="material-symbols-outlined">delete</span>
                   Confirmer
                 </button>
                 <button
                   onClick={() => setDeleteMode(false)}
-                  className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-fg-3 hover:text-fg-1 transition-colors"
+                  className="font-mono text-xs uppercase tracking-wider text-mute hover:text-bright transition-colors"
                 >
-                  <span className="material-symbols-outlined">close</span>
                   Annuler
                 </button>
               </>
@@ -92,16 +85,14 @@ function CategorieCard({ categorie, onUpdate }: Props) {
               <>
                 <button
                   onClick={() => setEditMode(true)}
-                  className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-fg-3 hover:text-fg-1 transition-colors"
+                  className="font-mono text-xs uppercase tracking-wider text-mute hover:text-bright transition-colors"
                 >
-                  <span className="material-symbols-outlined">edit</span>
                   Modifier
                 </button>
                 <button
                   onClick={() => setDeleteMode(true)}
-                  className="flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-fg-3 hover:text-red-500 transition-colors"
+                  className="font-mono text-xs uppercase tracking-wider text-mute hover:text-danger transition-colors"
                 >
-                  <span className="material-symbols-outlined">delete</span>
                   Supprimer
                 </button>
               </>

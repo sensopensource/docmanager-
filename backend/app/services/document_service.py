@@ -5,8 +5,11 @@ from pathlib import Path
 from sqlalchemy.orm import Session,selectinload
 from sqlalchemy import func,or_
 
+from fastapi import HTTPException
+
 from app.models.documents import Document
 from app.models.versions import Version
+from app.models.categories import Categorie
 from app.schemas.document import DocumentCreate,DocumentReadDetail,DocumentRead,DocumentDownload,DocumentSearchResult,DocumentListResponse
 from app.services.extraction import extract_text
 from app.models.utilisateurs import Utilisateur
@@ -26,6 +29,8 @@ def _to_document_read(document: Document, version: Version | None) -> DocumentRe
         auteur=document.auteur,
         date_creation=document.date_creation,
         type_fichier=version.type_fichier if version else None,
+        id_categorie=document.id_categorie,
+        tags=document.tags if hasattr(document, "tags") else [],
     )
 
 
@@ -146,37 +151,51 @@ def get_document_detail(db: Session,
     
      
     document_detail = DocumentReadDetail(
-       id = document.id, 
-       titre = document.titre,
-       auteur = document.auteur,
-       date_creation=document.date_creation,
-       type_fichier=version.type_fichier,
-       date_upload=version.date_upload,
-       apercu_contenu=version.contenu[:500],
-       resume_llm=version.resume_llm,
-       numero_version=version.numero    )
-    
+        id=document.id,
+        titre=document.titre,
+        auteur=document.auteur,
+        date_creation=document.date_creation,
+        type_fichier=version.type_fichier,
+        id_categorie=document.id_categorie,
+        tags=document.tags,
+        date_upload=version.date_upload,
+        apercu_contenu=version.contenu[:500],
+        resume_llm=version.resume_llm,
+        numero_version=version.numero,
+    )
+
     return document_detail
 
 def patch_document(db: Session,
                    document_id: int,
                    id_utilisateur: int,
                    auteur: str | None = None,
-                   titre: str | None = None,) -> DocumentRead | None:
+                   titre: str | None = None,
+                   id_categorie: int | None = None) -> DocumentRead | None:
     document = get_document(db,
                             document_id,
                             id_utilisateur=id_utilisateur)
     if not document:
         return None
-    if auteur :
-        document.auteur=auteur
-    if titre:
-        document.titre=titre
+    if auteur is not None:
+        document.auteur = auteur
+    if titre is not None:
+        document.titre = titre
+    if id_categorie is not None:
+        # On verifie que la categorie cible existe ET appartient bien a l'user
+        categorie = db.query(Categorie).filter(
+            Categorie.id == id_categorie,
+            Categorie.id_utilisateur == id_utilisateur,
+        ).first()
+        if not categorie:
+            raise HTTPException(status_code=404, detail="Categorie introuvable")
+        document.id_categorie = id_categorie
+
     db.commit()
     db.refresh(document)
-    v = get_latest_version(db=db,document_id=document.id)
+    v = get_latest_version(db=db, document_id=document.id)
 
-    return _to_document_read(document,v)
+    return _to_document_read(document, v)
 
 
 def delete_document(db: Session,

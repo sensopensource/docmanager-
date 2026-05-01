@@ -19,12 +19,14 @@ class DocumentRead(BaseModel):
     auteur: str | None = None
     date_creation: datetime
     type_fichier: str | None = None
+    id_categorie: int | None = None
     tags: list[TagRead] = []
 
 class DocumentPatch(BaseModel):
-   
+
     titre: str | None = None
     auteur: str | None = None
+    id_categorie: int | None = None
 
 class DocumentReadDetail(DocumentRead):
     model_config = ConfigDict(from_attributes=True)

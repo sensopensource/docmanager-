@@ -8,6 +8,7 @@ import DocumentsPage from "./pages/DocumentsPage"
 import ToastContainer from "./components/ToastContainer"
 import { AuthProvider } from "./contexts/AuthContext"
 import { ToastProvider } from "./contexts/ToastContext"
+import { SearchProvider } from "./contexts/SearchContext"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 const queryClient = new QueryClient()
@@ -18,25 +19,27 @@ function App() {
       <ToastProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/home" element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              } />
-              <Route path="/categories" element={
-                <ProtectedRoute>
-                  <CategoriesPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/documents" element={
-                <ProtectedRoute>
-                  <DocumentsPage />
-                </ProtectedRoute>
-              } />
-            </Routes>
+            <SearchProvider>
+              <Routes>
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/home" element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/categories" element={
+                  <ProtectedRoute>
+                    <CategoriesPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/documents" element={
+                  <ProtectedRoute>
+                    <DocumentsPage />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </SearchProvider>
           </BrowserRouter>
           <ToastContainer />
         </AuthProvider>
