@@ -140,6 +140,20 @@ def delete_categorie(db: Session,
     ).first()
     if not categorie:
         return False
+    
+    # Move all documents in this category to default "Non classe" category
+    default_categorie = get_or_create_default_categorie(db, id_utilisateur)
+    documents = db.query(Document).filter(
+        Document.id_categorie == id_categorie,
+        Document.id_utilisateur == id_utilisateur,
+    ).all()
+    
+    for doc in documents:
+        doc.id_categorie = default_categorie.id
+    
+    db.commit()
+    
+    # Now delete the category (no more foreign key violations)
     db.delete(categorie)
     db.commit()
     return True
