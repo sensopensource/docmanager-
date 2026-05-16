@@ -193,7 +193,48 @@ def filtrer_suggestions_refusees(db: Session,id_utilisateur: int, nouvelles_sugg
     return suggestions_a_retenir
 
 
-def analyser_bibliotheque(db: Session, id_utilisateur: int) -> list[Suggestion]:
+def _enrichir_payload(suggestion: Suggestion, db: Session) -> dict:
+    doc_ids = suggestion.payload.get("document_ids", [])
+
+    documents = ( db.query(Document)
+                    .filter(Document.id.in_(doc_ids),
+                            Document.id_utilisateur == suggestion.id_utilisateur)
+                    .all() )
+
+    cat_ids = { d.id_categorie for d in documents if d.id_categorie is not None }
+    noms_categories = {}
+    if cat_ids:
+        rows = db.query(Categorie.id, Categorie.nom).filter(Categorie.id.in_(cat_ids)).all()
+        noms_categories = { id_: nom for id_, nom in rows }
+
+    docs_par_id = {}
+    for doc in documents:
+        if doc.versions:
+            derniere = max(doc.versions, key=lambda v: v.numero)
+            type_fichier = derniere.type_fichier
+        else:
+            type_fichier = None
+        docs_par_id[doc.id] = { "id":            doc.id,
+                                "titre":         doc.titre,
+                                "type_fichier":  type_fichier,
+                                "categorie_nom": noms_categories.get(doc.id_categorie) }
+
+    documents_enrichis = [docs_par_id[id_] for id_ in doc_ids if id_ in docs_par_id]
+
+    payload_enrichi = dict(suggestion.payload)
+    payload_enrichi["documents"] = documents_enrichis
+
+    return { "id":              suggestion.id,
+             "id_utilisateur":  suggestion.id_utilisateur,
+             "type":            suggestion.type,
+             "payload":         payload_enrichi,
+             "statut":          suggestion.statut,
+             "raison_refus":    suggestion.raison_refus,
+             "date_creation":   suggestion.date_creation,
+             "date_traitement": suggestion.date_traitement }
+
+
+def analyser_bibliotheque(db: Session, id_utilisateur: int) -> list[dict]:
     contexte = collect_context(db, id_utilisateur)
     categories = collect_categories(db, id_utilisateur)
     suggestions_brutes = call_agent(contexte, categories)
@@ -211,7 +252,7 @@ def analyser_bibliotheque(db: Session, id_utilisateur: int) -> list[Suggestion]:
     db.commit()
     for suggestion in suggestions_a_enregistrer:
         db.refresh(suggestion)
-    return suggestions_a_enregistrer
+    return [_enrichir_payload(s, db) for s in suggestions_a_enregistrer]
 
 
 def appliquer_suggestion(db: Session, suggestion: Suggestion):
@@ -245,29 +286,30 @@ def appliquer_suggestion(db: Session, suggestion: Suggestion):
         db.commit()
 
 
-def valider_suggestion(db: Session, suggestion: Suggestion) -> Suggestion:
+def valider_suggestion(db: Session, suggestion: Suggestion) -> dict:
     appliquer_suggestion(db, suggestion)
     suggestion.statut = "validee"
     suggestion.date_traitement = datetime.now(timezone.utc)
 
     db.commit()
-    return suggestion
+    return _enrichir_payload(suggestion, db)
 
 
-def refuser_suggestion(db: Session, suggestion: Suggestion,raison_refus: str | None) -> Suggestion:
+def refuser_suggestion(db: Session, suggestion: Suggestion,raison_refus: str | None) -> dict:
     suggestion.statut = "refusee"
     suggestion.raison_refus = raison_refus
     suggestion.date_traitement = datetime.now(timezone.utc)
     db.commit()
-    return suggestion
+    return _enrichir_payload(suggestion, db)
 
 
-def lister_suggestions_en_attente(db: Session, id_utilisateur: int) -> list[Suggestion]:
-    return ( db.query(Suggestion)
-               .filter(Suggestion.id_utilisateur == id_utilisateur,
-                       Suggestion.statut == "en_attente")
-               .order_by(Suggestion.date_creation.desc())
-               .all() )
+def lister_suggestions_en_attente(db: Session, id_utilisateur: int) -> list[dict]:
+    suggestions = ( db.query(Suggestion)
+                      .filter(Suggestion.id_utilisateur == id_utilisateur,
+                              Suggestion.statut == "en_attente")
+                      .order_by(Suggestion.date_creation.desc())
+                      .all() )
+    return [_enrichir_payload(s, db) for s in suggestions]
 
 
 def get_suggestion(db: Session, id_suggestion: int, id_utilisateur: int) -> Suggestion | None:

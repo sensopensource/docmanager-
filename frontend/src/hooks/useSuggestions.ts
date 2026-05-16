@@ -3,9 +3,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
 export type SuggestionType = 'regroupement' | 'suppression' | 'tag'
 
+export type SuggestionDoc = {
+  id: number
+  titre: string
+  type_fichier: string | null
+  categorie_nom: string | null
+}
+
 export type SuggestionPayload = {
   explication: string
   document_ids: number[]
+  documents?: SuggestionDoc[]
   categorie_cible_id?: number | null
   categorie_cible_nom?: string | null
   tag_name?: string | null

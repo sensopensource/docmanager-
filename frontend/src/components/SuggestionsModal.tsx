@@ -131,12 +131,20 @@ function SuggestionsModal() {
                 Documents concernés ({currentSuggestion.payload.document_ids.length})
               </div>
               <div className="docs-list">
-                {currentSuggestion.payload.document_ids.map((id) => (
-                  <div key={id} className="doc-row">
-                    <span className="type-dot bg-mute"></span>
-                    <span className="title">Document #{id}</span>
-                  </div>
-                ))}
+                {(currentSuggestion.payload.documents ?? []).map((doc) => {
+                  const couleur = doc.type_fichier
+                    ? `var(--type-${doc.type_fichier})`
+                    : 'var(--mute)'
+                  return (
+                    <div key={doc.id} className="doc-row">
+                      <span className="type-dot" style={{ background: couleur }}></span>
+                      <span className="title">{doc.titre}</span>
+                      {doc.categorie_nom && (
+                        <span className="cat">{doc.categorie_nom}</span>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {refusing && (
