@@ -217,6 +217,19 @@ body {
 }
 .btn-primary:hover { background: #ffffff; }
 
+.btn-ai {
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--type-ai);
+  padding: 6px 12px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.btn-ai:hover { filter: brightness(1.1); }
+.btn-ai:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ─── SIDEBAR — liens Agent IA (accent violet) ────────────── */
 .sb-agent-link {
   position: relative;
