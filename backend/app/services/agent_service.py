@@ -209,11 +209,8 @@ def _enrichir_payload(suggestion: Suggestion, db: Session) -> dict:
 
     docs_par_id = {}
     for doc in documents:
-        if doc.versions:
-            derniere = max(doc.versions, key=lambda v: v.numero)
-            type_fichier = derniere.type_fichier
-        else:
-            type_fichier = None
+        derniere = document_service.get_latest_version(db, doc.id)
+        type_fichier = derniere.type_fichier if derniere else None
         docs_par_id[doc.id] = { "id":            doc.id,
                                 "titre":         doc.titre,
                                 "type_fichier":  type_fichier,

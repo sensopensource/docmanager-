@@ -5,7 +5,7 @@ import type { Suggestion } from "../hooks/useSuggestions"
 const DUREE = 5
 
 function buildDesc(s: Suggestion): string {
-  const nb = s.payload.document_ids.length
+  const nb = s.payload.documents.length
   if (s.type === 'regroupement') {
     const nom = s.payload.categorie_cible_nom
     const nouvelle = s.payload.categorie_cible_id == null

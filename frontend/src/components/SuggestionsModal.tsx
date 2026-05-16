@@ -9,7 +9,7 @@ const TYPE_LABEL: Record<SuggestionType, string> = {
 }
 
 function buildTitle(s: Suggestion): string {
-  const nb = s.payload.document_ids.length
+  const nb = s.payload.documents.length
   if (s.type === 'regroupement') {
     const nom = s.payload.categorie_cible_nom
     if (nom) return `Regrouper ${nb} document${nb > 1 ? 's' : ''} dans "${nom}"`
@@ -128,10 +128,10 @@ function SuggestionsModal() {
               <p className="why">{currentSuggestion.payload.explication}</p>
 
               <div className="section-label docs-label">
-                Documents concernés ({currentSuggestion.payload.document_ids.length})
+                Documents concernés ({currentSuggestion.payload.documents.length})
               </div>
               <div className="docs-list">
-                {(currentSuggestion.payload.documents ?? []).map((doc) => {
+                {currentSuggestion.payload.documents.map((doc) => {
                   const couleur = doc.type_fichier
                     ? `var(--type-${doc.type_fichier})`
                     : 'var(--mute)'

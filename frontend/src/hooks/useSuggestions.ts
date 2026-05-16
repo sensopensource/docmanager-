@@ -12,8 +12,7 @@ export type SuggestionDoc = {
 
 export type SuggestionPayload = {
   explication: string
-  document_ids: number[]
-  documents?: SuggestionDoc[]
+  documents: SuggestionDoc[]
   categorie_cible_id?: number | null
   categorie_cible_nom?: string | null
   tag_name?: string | null
