@@ -657,6 +657,123 @@ body {
   margin: 0 0 18px;
 }
 
+/* ─── MODALE Réorganisation 5s ────────────────────────────── */
+.modal-reorg {
+  width: 460px;
+  background: var(--panel);
+  border: 0.5px solid var(--line);
+  padding: 56px 48px 40px;
+  text-align: center;
+  position: relative;
+}
+.modal-reorg .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--type-ai);
+  margin-bottom: 28px;
+  display: block;
+}
+
+.reorg-counter {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--bright);
+  margin: 0 0 8px;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.reorg-counter-unit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 36px;
+}
+
+.modal-reorg h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0 0 12px;
+  color: var(--bright);
+  letter-spacing: -0.01em;
+}
+.modal-reorg .desc {
+  font-size: 13.5px;
+  color: var(--soft);
+  margin: 0 auto 28px;
+  line-height: 1.55;
+  max-width: 320px;
+}
+
+.reorg-bar {
+  height: 2px;
+  background: var(--line);
+  margin: 0 0 32px;
+  position: relative;
+  overflow: hidden;
+}
+.reorg-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--type-ai);
+  width: 0%;
+}
+.reorg-bar-fill.run {
+  animation: reorgFill 5s linear forwards;
+}
+@keyframes reorgFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.btn-cancel-reorg {
+  width: 100%;
+  font-size: 13px;
+  color: var(--bright);
+  background: transparent;
+  border: 0.5px solid var(--line2);
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+.btn-cancel-reorg:hover {
+  background: var(--elev);
+  border-color: var(--bright);
+}
+.btn-cancel-reorg .material-symbols-outlined { font-size: 16px; }
+.btn-cancel-reorg .kbd-hint {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--mute);
+  padding: 1px 6px;
+  border: 0.5px solid var(--line);
+}
+
+.reorg-warn {
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.reorg-warn b { color: var(--danger); font-weight: 500; }
+
 /* ─── KBD shortcuts ───────────────────────────────────────── */
 kbd {
   font-family: var(--font-mono);

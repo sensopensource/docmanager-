@@ -4,6 +4,7 @@ import AppSidebar from "./AppSidebar"
 import AgentAnalysisToast from "./AgentAnalysisToast"
 import AgentEmptyToast from "./AgentEmptyToast"
 import SuggestionsModal from "./SuggestionsModal"
+import ReorgModal from "./ReorgModal"
 import { AgentProvider } from "../contexts/AgentContext"
 
 type Props = {
@@ -24,6 +25,7 @@ function AppShell({ children }: Props) {
         <AgentAnalysisToast />
         <AgentEmptyToast />
         <SuggestionsModal />
+        <ReorgModal />
       </div>
     </AgentProvider>
   )
