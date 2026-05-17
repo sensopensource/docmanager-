@@ -265,11 +265,10 @@ def appliquer_suggestion(db: Session, suggestion: Suggestion):
     payload = suggestion.payload
 
     if type_suggestion == "regroupement":
-        if payload["categorie_cible_id"] is None:
-            categorie = categorie_service.create_categorie(db, nom=payload["categorie_cible_nom"], id_utilisateur=id_utilisateur)
+        cat_id = payload.get("categorie_cible_id")
+        if cat_id is None:
+            categorie = categorie_service.create_categorie(db, nom=payload.get("categorie_cible_nom"), id_utilisateur=id_utilisateur)
             cat_id = categorie.id
-        else:
-            cat_id = payload["categorie_cible_id"]
 
         documents = db.query(Document).filter(Document.id.in_(payload["document_ids"]),
                                               Document.id_utilisateur == id_utilisateur).all()
@@ -282,7 +281,7 @@ def appliquer_suggestion(db: Session, suggestion: Suggestion):
     elif type_suggestion == "tag":
         documents = db.query(Document).filter(Document.id.in_(payload["document_ids"]),
                                               Document.id_utilisateur == id_utilisateur).all()
-        tag_read = tag_service.create_tag(db, payload["tag_name"], id_utilisateur)
+        tag_read = tag_service.create_tag(db, payload.get("tag_name"), id_utilisateur)
         tag = db.query(Tag).filter(Tag.id == tag_read.id).first()
         for doc in documents:
             if tag not in doc.tags:
