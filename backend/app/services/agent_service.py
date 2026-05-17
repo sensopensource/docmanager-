@@ -120,7 +120,7 @@ Règle de discrimination entre les types (à appliquer dans l'ordre) :
 
 Règles strictes :
 - Tu ne proposes que des suggestions à HAUTE confiance. Dans le doute,
-  tu ne proposes rien.
+  tu ne proposes rien (liste vide acceptée).
 - Maximum 5 suggestions par analyse.
 - Un même document ne doit apparaître que dans UNE seule suggestion par
   analyse (jamais à la fois dans un regroupement et une suppression, ni
@@ -129,6 +129,11 @@ Règles strictes :
   qui sera montrée à l'utilisateur. L'explication doit être COHÉRENTE
   avec le type choisi : si tu écris "doublons" ou "quasi-doublons" dans
   l'explication, le type DOIT être "suppression".
+- Ne propose JAMAIS un REGROUPEMENT si tous les documents concernés
+  sont DÉJÀ dans la même catégorie (regarde le champ "categorie_id" de
+  chaque document). Dans ce cas, il n'y a rien à regrouper.
+- Ne propose JAMAIS un TAG si tous les documents partagent déjà un tag
+  qui couvre l'attribut transversal en question.
 - Ne propose JAMAIS de toucher aux documents que tu n'as pas reçus
   dans le contexte (ils peuvent être privés).
 
@@ -149,7 +154,9 @@ def call_agent(documents: list[dict], categories: list[dict]) -> list[dict]:
     user_message = ( f"Voici la bibiliotheque de l'utilisateur:\n\n"
                      f"Documents : {documents}\n\n"
                      f"Catégories : {categories}\n\n"
-                     f"analyse cette bibliotheque et propose 5 suggestion via l'outil submit_suggestions pour aider l'utilisateur a mieux organiser sa bibliotheque.")
+                     f"Analyse cette bibliotheque et propose jusqu'a 5 suggestions via l'outil submit_suggestions "
+                     f"pour aider l'utilisateur a mieux organiser sa bibliotheque. "
+                     f"Si rien ne justifie une suggestion a haute confiance, renvoie une liste vide.")
 
     response = client.messages.create(model="claude-haiku-4-5-20251001",
                                       max_tokens=3333,
