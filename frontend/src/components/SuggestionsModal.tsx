@@ -125,27 +125,32 @@ function SuggestionsModal() {
                 {TYPE_LABEL[currentSuggestion.type]}
               </span>
               <h2>{buildTitle(currentSuggestion)}</h2>
-              <p className="why">{currentSuggestion.payload.explication}</p>
 
-              <div className="section-label docs-label">
-                Documents concernés ({currentSuggestion.payload.documents.length})
-              </div>
-              <div className="docs-list">
-                {currentSuggestion.payload.documents.map((doc) => {
-                  const couleur = doc.type_fichier
-                    ? `var(--type-${doc.type_fichier})`
-                    : 'var(--mute)'
-                  return (
-                    <div key={doc.id} className="doc-row">
-                      <span className="type-dot" style={{ background: couleur }}></span>
-                      <span className="title">{doc.titre}</span>
-                      {doc.categorie_nom && (
-                        <span className="cat">{doc.categorie_nom}</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              {!refusing && (
+                <>
+                  <p className="why">{currentSuggestion.payload.explication}</p>
+
+                  <div className="section-label docs-label">
+                    Documents concernés ({currentSuggestion.payload.documents.length})
+                  </div>
+                  <div className="docs-list">
+                    {currentSuggestion.payload.documents.map((doc) => {
+                      const couleur = doc.type_fichier
+                        ? `var(--type-${doc.type_fichier})`
+                        : 'var(--mute)'
+                      return (
+                        <div key={doc.id} className="doc-row">
+                          <span className="type-dot" style={{ background: couleur }}></span>
+                          <span className="title">{doc.titre}</span>
+                          {doc.categorie_nom && (
+                            <span className="cat">{doc.categorie_nom}</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
 
               {refusing && (
                 <div className="refuse-form">
