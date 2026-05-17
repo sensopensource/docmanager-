@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 class CategorieCreate(BaseModel):
     nom: str
     id_parent: int | None = None
+    privee: bool = False
 
 
 class CategoriePatch(BaseModel):
