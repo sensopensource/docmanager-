@@ -49,6 +49,9 @@
   --type-md:    #c9a76a;
   --type-ai:    #a89cd6;
 
+  --danger:   #c0392b;
+  --success:  #1e7a4a;
+
   --space-1:   4px;
   --space-2:   8px;
   --space-3:  12px;
@@ -183,6 +186,19 @@ body {
 
 /* ─── DOTS de type (sidebar, métadonnées) ─────────────────── */
 .type-dot { width: 5px; height: 5px; display: inline-block; }
+
+/* ─── BARRE verticale de categorie (sidebar) ──────────────── */
+.cat-bar {
+  width: 2px;
+  height: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  background: var(--mute);
+  opacity: 0.55;
+  transition: opacity 120ms ease, height 120ms ease;
+}
+.group:hover .cat-bar,
+.cat-bar.is-active { opacity: 1; height: 18px; }
 
 /* ─── LABELS de section (mono uppercase 10px) ─────────────── */
 .section-label {

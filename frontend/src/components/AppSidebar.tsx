@@ -11,7 +11,7 @@ import type { CategorieNode } from "../types"
 import NewCategorieModal from "./NewCategorieModal"
 import { useAgent } from "../contexts/AgentContext"
 
-const TYPE_DOTS = ["bg-type-pdf", "bg-type-docx", "bg-type-txt", "bg-type-md", "bg-type-ai"]
+const CAT_COLORS = ["var(--type-pdf)", "var(--type-docx)", "var(--type-txt)", "var(--type-md)"]
 
 type NewCatTarget = { parentId: number | null; parentNom: string | null } | null
 
@@ -110,7 +110,7 @@ function CategorieTreeNode({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`group flex items-center gap-1 px-2 py-1.5 text-[12.5px] transition-colors ${
+        className={`group flex items-center gap-0.5 px-2 py-1.5 text-[12.5px] transition-colors ${
           editing ? 'bg-elev' : ''
         } ${
           isDragOver ? 'outline outline-1 outline-bright -outline-offset-1' : ''
@@ -121,6 +121,11 @@ function CategorieTreeNode({
         }`}
         style={{ paddingLeft: `${8 + node.depth * 14}px` }}
       >
+        <span
+          className={`cat-bar ${isSelected ? 'is-active' : ''}`}
+          style={{ background: CAT_COLORS[colorIdx % CAT_COLORS.length] }}
+        ></span>
+
         {/* Chevron */}
         <button
           type="button"
@@ -132,8 +137,6 @@ function CategorieTreeNode({
         >
           {hasChildren && <span className="material-symbols-outlined text-[14px]">chevron_right</span>}
         </button>
-
-        <span className={`type-dot ${TYPE_DOTS[colorIdx % TYPE_DOTS.length]}`}></span>
 
         {editing ? (
           <input
