@@ -25,3 +25,11 @@ def require_user(utilisateur: Utilisateur | None = Depends(get_current_user)) ->
     if not utilisateur:
         raise HTTPException(status_code=401, detail="Non authentifie")
     return utilisateur
+
+def require_admin(utilisateur: Utilisateur | None = Depends(get_current_user)) -> Utilisateur:
+    if not utilisateur:
+        raise HTTPException(status_code=401, detail="Non authentifie")
+    if utilisateur.role != "admin":
+        raise HTTPException(status_code=403, detail="Acces refuse")
+    return utilisateur
+

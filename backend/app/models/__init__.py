@@ -5,3 +5,5 @@ from app.models.categories import Categorie
 from app.models.logs import Log
 from app.models.tags import Tag
 from app.models.historiques_recherches import HistoriqueRecherche
+from app.models.consommations_tokens import ConsommationTokens
+from app.models.preferences_utilisateur_dashboard import PreferenceUtilisateurDashboard

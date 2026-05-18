@@ -56,7 +56,8 @@ CREATE TABLE versions(
     search_vector tsvector,
     resume_LLM TEXT,
     date_upload TIMESTAMPTZ DEFAULT NOW(),
-    id_document int REFERENCES documents(id) ON DELETE CASCADE
+    id_document int REFERENCES documents(id) ON DELETE CASCADE,
+    taille_octets bigint NOT NULL
 
 );
 
@@ -114,6 +115,25 @@ CREATE TABLE suggestions(
     raison_refus TEXT,
     date_creation TIMESTAMPTZ DEFAULT NOW(),
     date_traitement TIMESTAMPTZ
+);
+
+CREATE TABLE consommations_tokens(
+    id SERIAL PRIMARY KEY,
+    id_utilisateur int REFERENCES utilisateurs(id) NOT NULL,
+    source TEXT NOT NULL CHECK (source IN ('suggestion', 'resume')),
+    modele TEXT NOT NULL,
+    tokens_in int NOT NULL,
+    tokens_out int NOT NULL,
+    latence_ms int NOT NULL,
+    statut TEXT NOT NULL CHECK (statut IN ('ok', 'err', 'timeout')),
+    message_erreur TEXT,
+    cree_le TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE preferences_utilisateur_dashboard(
+    id_utilisateur int PRIMARY KEY REFERENCES utilisateurs(id),
+    layout JSONB NOT NULL,
+    maj_le TIMESTAMPTZ DEFAULT NOW()
 );
 
 

@@ -17,6 +17,7 @@ from datetime import date
 from app.models.tags import Tag
 from app.database import SessionLocal
 from app.services.log_service import log_action
+from fastapi import HTTPException
 
 
 STORAGE_DIR = Path(os.getenv("STORAGE_DIR", "/app/storage/documents"))
@@ -75,6 +76,7 @@ def create(
         storage_fichier=storage_fichier,
         type_fichier=type_fichier,
         id_document=document.id,
+        taille_octets=len(file_bytes)
     )
     db.add(version)
     db.commit()
@@ -533,6 +535,7 @@ def add_version(
         storage_fichier=storage_fichier,
         type_fichier=type_fichier,
         id_document=document_id,
+        taille_octets=len(file_bytes)
     )
     db.add(version)
     db.commit()
